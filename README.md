@@ -22,10 +22,12 @@ Open <http://localhost:3000> to view the app. All main components live under `sr
 ## Build & Deploy
 
 - **Static build / self hosting**
+
   ```bash
   pnpm build
   pnpm start   # serves the production build via Next.js server
   ```
+
 - **Vercel**: connect the repo, set build command `pnpm build`, output `.next`, and configure env vars (`NEXT_PUBLIC_AMAP_KEY`, `NEXT_PUBLIC_API_BASE`). Enable “Git submodules” if deploying from the root repo.
 - **Cloudflare Pages**:
   - Pure static export: `pnpm next build && pnpm next export` with output `out/`.
@@ -35,6 +37,7 @@ Open <http://localhost:3000> to view the app. All main components live under `sr
 
 - `NEXT_PUBLIC_AMAP_KEY` (required): Gaode Web JS SDK key. Without it the map will show an error banner.
 - `NEXT_PUBLIC_API_BASE` (optional): API origin for FastAPI backend. Leave empty when frontend and backend share the same domain.
+- `NEXT_PUBLIC_REFRESH_INTERVAL` (optional): Frontend auto-refresh interval in seconds. When set, overrides `/api/config`’s `fetch_interval`.
 
 All variables with `NEXT_PUBLIC_` prefix are exposed to the browser and must be set per environment (`.env.local`, `.env.production`, or deployment dashboards).
 

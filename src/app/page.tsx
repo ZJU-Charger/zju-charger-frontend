@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { Footer } from "@/components/footer";
 import { HeaderBar } from "@/components/header-bar";
 import { MapView } from "@/components/map-view";
 import { NightNotice } from "@/components/night-notice";
@@ -18,6 +17,7 @@ import { useRealtimeLocation } from "@/hooks/use-realtime-location";
 import { useStations } from "@/hooks/use-stations";
 import { useThemeMode } from "@/hooks/use-theme-mode";
 import { useWatchlist } from "@/hooks/use-watchlist";
+import { useWindowSize } from "@/hooks/use-window-size";
 import { CAMPUS_LIST } from "@/lib/config";
 import { distanceBetween } from "@/lib/geo";
 import type { CampusId, StationRecord } from "@/types/station";
@@ -28,6 +28,7 @@ export default function HomePage() {
   const [providerId, setProviderId] = useState(ALL_PROVIDERS);
   const { theme, toggleTheme } = useThemeMode();
   const [autoSelectionDone, setAutoSelectionDone] = useState(false);
+  const { height: windowHeight } = useWindowSize();
   const { providers } = useProviders();
   const { watchlist, isWatched, toggleWatch } = useWatchlist();
   const stationsState = useStations(
@@ -104,6 +105,8 @@ export default function HomePage() {
     );
   }, [autoSelectionDone]);
 
+  const panelHeight = Math.max(Math.floor(windowHeight - 200), 420);
+
   return (
     <div className="min-h-screen bg-background">
       <RateLimitToast
@@ -113,7 +116,6 @@ export default function HomePage() {
       <main className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-4 sm:px-6 lg:px-8 lg:py-6">
         <HeaderBar
           lastUpdated={stationsState.updatedAt}
-          onRefresh={handleRefresh}
           onToggleTheme={toggleTheme}
           theme={theme}
         />
@@ -127,7 +129,10 @@ export default function HomePage() {
         </Card>
 
         <div className="grid flex-1 grid-cols-1 gap-4 lg:grid-cols-3">
-          <Card className="relative col-span-1 flex flex-col overflow-hidden rounded-2xl border bg-card shadow-sm lg:col-span-2 lg:h-[75vh]">
+          <Card
+            className="relative col-span-1 flex flex-1 flex-col rounded-2xl border bg-card shadow-sm lg:col-span-2"
+            style={{ height: panelHeight }}
+          >
             <MapView
               stations={stationsState.mapStations}
               campusId={campusId}
@@ -139,7 +144,10 @@ export default function HomePage() {
               onStopTracking={stop}
             />
           </Card>
-          <Card className="flex min-h-[40vh] flex-col overflow-hidden rounded-2xl border bg-card p-4 shadow-sm lg:h-[75vh]">
+          <Card
+            className="flex min-h-[40vh] flex-1 flex-col rounded-2xl border bg-card p-4 shadow-sm"
+            style={{ height: panelHeight }}
+          >
             <div className="flex items-center justify-between gap-3 border-b pb-4">
               <div>
                 <h2 className="text-lg font-semibold">站点列表</h2>
@@ -168,8 +176,6 @@ export default function HomePage() {
             </div>
           </Card>
         </div>
-
-        <Footer />
       </main>
     </div>
   );

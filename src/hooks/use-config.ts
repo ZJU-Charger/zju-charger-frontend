@@ -2,12 +2,19 @@ import { useEffect, useState } from "react";
 import { fetchConfig } from "@/lib/api";
 import { DEFAULT_FETCH_INTERVAL } from "@/lib/config";
 
+const envRefresh = Number(process.env.NEXT_PUBLIC_REFRESH_INTERVAL ?? "");
+const ENV_INTERVAL =
+  Number.isFinite(envRefresh) && envRefresh > 0 ? envRefresh : null;
+
 export function useConfig() {
   const [intervalSeconds, setIntervalSeconds] = useState(
-    DEFAULT_FETCH_INTERVAL,
+    ENV_INTERVAL ?? DEFAULT_FETCH_INTERVAL,
   );
 
   useEffect(() => {
+    if (ENV_INTERVAL) {
+      return;
+    }
     let cancelled = false;
     async function loadConfig() {
       try {

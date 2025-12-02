@@ -25,7 +25,7 @@ export function HeaderBar({
             alt="ZJU Charger Logo"
             width={36}
             height={36}
-            className="rounded-full"
+            className="rounded-lg"
           />
           <div className="flex items-end gap-3">
             <h1 className="text-2xl font-semibold text-emerald-600 dark:text-emerald-400">
@@ -43,7 +43,7 @@ export function HeaderBar({
               href="https://github.com/Phil-Fan/ZJU-Charger"
               target="_blank"
               rel="noreferrer"
-              className="rounded-full border border-emerald-500/70 p-2 text-emerald-500 shadow-sm transition hover:bg-emerald-500 hover:text-white"
+              className="rounded-full border border-emerald-500/70 bg-emerald-50 p-2 text-emerald-600 shadow-sm transition hover:bg-emerald-500 hover:text-white dark:bg-emerald-500/10 dark:text-emerald-300"
               aria-label="GitHub 仓库"
             >
               <Github className="h-4 w-4" />

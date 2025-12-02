@@ -20,6 +20,11 @@ export const CAMPUS_LIST: CampusConfig[] = [
     name: "华家池校区",
     center: [120.20209784840182, 30.275736891986803],
   },
+  {
+    id: "4",
+    name: "西溪校区",
+    center: [120.14657666404574,30.28148122455162],
+  },
 ];
 
 type CampusLookup = Record<string, CampusConfig>;

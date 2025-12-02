@@ -1,4 +1,4 @@
-export type CampusId = "" | "1" | "2" | "3";
+export type CampusId = "" | "1" | "2" | "3" | "4";
 
 export interface ProviderInfo {
   id: string;

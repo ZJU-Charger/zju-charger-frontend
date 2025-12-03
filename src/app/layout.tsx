@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
+import { ClarityScript } from "@/components/clarity";
 
 export const metadata: Metadata = {
   title: "ZJU Charger 前端",
@@ -17,6 +18,7 @@ export default function RootLayout({
       <body className="bg-background font-sans antialiased">
         {children}
         <Toaster position="top-center" richColors />
+        <ClarityScript />
       </body>
     </html>
   );

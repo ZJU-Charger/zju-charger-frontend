@@ -13,7 +13,8 @@ This directory hosts the Next.js App Router frontend for ZJU Charger. The UI mir
 pnpm install
 cp .env.local.example .env.local  # create if missing
 echo "NEXT_PUBLIC_AMAP_KEY=<your-amap-key>" >> .env.local
-# optionally NEXT_PUBLIC_API_BASE=https://your-api-domain
+echo "NEXT_PUBLIC_API_BASE=https://your-api-domain" >> .env.local
+echo "NEXT_PUBLIC_CLARITY_PROJECT_ID=<your-clarity-project-id>" >> .env.local
 pnpm dev
 ```
 
@@ -38,6 +39,7 @@ Open <http://localhost:3000> to view the app. All main components live under `sr
 - `NEXT_PUBLIC_AMAP_KEY` (required): Gaode Web JS SDK key. Without it the map will show an error banner.
 - `NEXT_PUBLIC_API_BASE` (optional): API origin for FastAPI backend. Leave empty when frontend and backend share the same domain.
 - `NEXT_PUBLIC_REFRESH_INTERVAL` (optional): Frontend auto-refresh interval in seconds. When set, overrides `/api/config`’s `fetch_interval`.
+- `NEXT_PUBLIC_CLARITY_PROJECT_ID` (optional): Clarity project ID. When set, Clarity will be enabled.
 
 All variables with `NEXT_PUBLIC_` prefix are exposed to the browser and must be set per environment (`.env.local`, `.env.production`, or deployment dashboards).
 

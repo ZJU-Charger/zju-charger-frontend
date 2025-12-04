@@ -133,10 +133,12 @@ export function MapView({
       const coord = formatCoord(station);
       if (type === "gaode") {
         if (platform === "ios") {
+          const url = `iosamap://navi?sourceApplication=ZJUCharger&poiname=${encodeURIComponent(
+            station.name,
+          )}&lat=${latitude}&lon=${longitude}&dev=0`;
+          console.info("URL:", url);
           return {
-            primary: `iosamap://navi?sourceApplication=ZJU+Charger&poiname=${encodeURIComponent(
-              station.name,
-            )}&lat=${latitude}&lon=${longitude}&dev=0&t=0`,
+            primary: url,
             fallback: buildAmapWebUrl(station),
           };
         }
@@ -187,52 +189,62 @@ export function MapView({
     [platform, formatCoord],
   );
 
-  const attemptOpen = useCallback((primary: string, fallback?: string) => {
-    if (typeof window === "undefined") {
-      if (fallback) {
-        globalThis?.open?.(fallback, "_blank");
+  const attemptOpen = useCallback(
+    (primary: string, fallback?: string) => {
+      if (typeof window === "undefined") {
+        if (fallback) {
+          globalThis?.open?.(fallback, "_blank");
+        }
+        return;
       }
-      return;
-    }
-    const isHttp = /^https?:\/\//i.test(primary);
-    if (isHttp) {
-      window.open(primary, "_blank");
-      return;
-    }
+      const isHttp = /^https?:\/\//i.test(primary);
+      if (isHttp) {
+        window.open(primary, "_blank");
+        return;
+      }
 
-    let timerId: number | null = null;
-    let navIframe: HTMLIFrameElement | null = null;
-    const handleVisibilityChange = () => {
-      if (document.hidden) {
+      let timerId: number | null = null;
+      let navIframe: HTMLIFrameElement | null = null;
+      const handleVisibilityChange = () => {
+        if (document.hidden) {
+          cleanup();
+        }
+      };
+      const cleanup = () => {
+        if (timerId !== null) {
+          window.clearTimeout(timerId);
+          timerId = null;
+        }
+        if (navIframe && document.body.contains(navIframe)) {
+          document.body.removeChild(navIframe);
+        }
+        document.removeEventListener(
+          "visibilitychange",
+          handleVisibilityChange,
+        );
+      };
+
+      if (platform === "ios" || platform === "android" || platform === "mac") {
+        window.location.href = primary;
+      } else {
+        document.addEventListener("visibilitychange", handleVisibilityChange);
+        navIframe = document.createElement("iframe");
+        navIframe.style.display = "none";
+        navIframe.src = primary;
+        document.body.appendChild(navIframe);
+      }
+
+      timerId = window.setTimeout(() => {
         cleanup();
-      }
-    };
-    const cleanup = () => {
-      if (timerId !== null) {
-        window.clearTimeout(timerId);
-        timerId = null;
-      }
-      if (navIframe && document.body.contains(navIframe)) {
-        document.body.removeChild(navIframe);
-      }
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-    };
+        if (fallback) {
+          window.open(fallback, "_blank");
+        }
+      }, 1200);
 
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-    navIframe = document.createElement("iframe");
-    navIframe.style.display = "none";
-    navIframe.src = primary;
-    document.body.appendChild(navIframe);
-
-    timerId = window.setTimeout(() => {
-      cleanup();
-      if (fallback) {
-        window.open(fallback, "_blank");
-      }
-    }, 1200);
-
-    window.setTimeout(cleanup, 1500);
-  }, []);
+      window.setTimeout(cleanup, 1500);
+    },
+    [platform],
+  );
 
   const cancelNavTransition = useCallback(() => {
     if (navSwitchTimerRef.current !== null) {

@@ -17,13 +17,13 @@ export function SummaryGrid({
 }: SummaryGridProps) {
   return (
     <div className="overflow-x-auto">
-      <div className="flex min-w-full gap-3 sm:grid sm:grid-cols-4">
+      <div className="flex min-w-full flex-nowrap gap-3">
         {summary.map((item) => (
           <button
             key={item.campusId}
             type="button"
             className={cn(
-              "flex min-w-[140px] flex-col rounded-2xl border p-3 text-left transition sm:min-w-[180px] sm:p-4",
+              "flex min-w-[140px] flex-shrink-0 flex-col rounded-2xl border p-3 text-left transition sm:min-w-[180px] sm:p-4",
               "bg-white text-slate-900 shadow-sm hover:shadow-md",
               "dark:bg-slate-900 dark:text-slate-100 dark:border-slate-700",
               selectedCampusId === item.campusId

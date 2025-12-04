@@ -118,12 +118,14 @@ export function HeaderBar({
                     </li>
                     <li>地图：<b>长按或双击</b>地图站点可选择导航。</li>
                     <li>站点列表：
-                      <li>右上角按照服务商<b>筛选</b>并选择<b>排序方式</b>（距离优先/空闲优先）。</li>
-                      <li><b>点击</b>站点列表中的站点，地图上可以快速定位跳转。</li>
-                      <li><b>点击星标</b>关注站点，并显示在列表最上方。</li>
+                      <ul>
+                        <li>点击列表<b>筛选</b>服务商并选择距离优先/空闲优先的<b>排序方式</b>。</li>
+                        <li>点击站点列表中的<b>站点</b>，地图上可以快速定位跳转。</li>
+                        <li>点击<b>星标</b>关注站点，并显示在列表最上方。</li>
+                      </ul>
                     </li>
                     <li>颜色模式：点击右上角按钮切换颜色模式。</li>
-                    <li>快捷方式：点击 Safari 分享→添加到主屏幕，可将 ZJU Charger 快捷保存到桌面。</li>
+                    <li>快捷方式：点击 Safari 分享→添加到主屏幕。</li>
                   </ol>
                 </div>
                 <DialogFooter className="flex flex-row flex-nowrap w-full items-center justify-between sm:justify-between gap-3 space-x-0 sm:space-x-0">

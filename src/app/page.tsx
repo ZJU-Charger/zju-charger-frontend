@@ -281,6 +281,9 @@ export default function HomePage() {
           </Card>
         </div>
       </main>
+      <footer className="px-4 pb-4 text-center text-xs text-muted-foreground">
+        浙ICP备2025206156号 · 使用 GPLv3 协议开源
+      </footer>
     </div>
   );
 }

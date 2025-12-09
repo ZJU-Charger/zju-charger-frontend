@@ -7,6 +7,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useLanguage } from "@/hooks/use-language";
 import type { SortMode } from "@/types/sort";
 
 interface SortSelectProps {
@@ -22,6 +23,7 @@ export function SortSelect({
   distanceEnabled,
   onRequireLocation,
 }: SortSelectProps) {
+  const { language } = useLanguage();
   const handleValueChange = (next: SortMode) => {
     if (next === "distance" && !distanceEnabled) {
       onRequireLocation?.();
@@ -36,13 +38,20 @@ export function SortSelect({
       onValueChange={(next) => handleValueChange(next as SortMode)}
     >
       <SelectTrigger className="w-[120px]">
-        <SelectValue placeholder="排序" />
+        <SelectValue placeholder={language === "en" ? "Sort" : "排序"} />
       </SelectTrigger>
       <SelectContent>
         <SelectItem value="distance">
-          距离优先{!distanceEnabled ? "（未开启）" : ""}
+          {language === "en" ? "Distance priority" : "距离优先"}
+          {!distanceEnabled
+            ? language === "en"
+              ? " (off)"
+              : "（未开启）"
+            : ""}
         </SelectItem>
-        <SelectItem value="free">空闲优先</SelectItem>
+        <SelectItem value="free">
+          {language === "en" ? "Availability priority" : "空闲优先"}
+        </SelectItem>
       </SelectContent>
     </Select>
   );

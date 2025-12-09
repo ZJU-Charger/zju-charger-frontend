@@ -7,6 +7,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useLanguage } from "@/hooks/use-language";
 import type { ProviderInfo } from "@/types/station";
 
 interface ProviderSelectProps {
@@ -20,13 +21,18 @@ export function ProviderSelect({
   providers,
   onChange,
 }: ProviderSelectProps) {
+  const { language } = useLanguage();
   return (
     <Select value={providerId} onValueChange={onChange}>
       <SelectTrigger className="w-[130px]">
-        <SelectValue placeholder="全部服务商" />
+        <SelectValue
+          placeholder={language === "en" ? "All providers" : "全部服务商"}
+        />
       </SelectTrigger>
       <SelectContent>
-        <SelectItem value="all">全部</SelectItem>
+        <SelectItem value="all">
+          {language === "en" ? "All" : "全部"}
+        </SelectItem>
         {providers.map((provider) => (
           <SelectItem key={provider.id} value={provider.id}>
             {provider.name}

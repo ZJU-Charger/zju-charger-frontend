@@ -9,6 +9,7 @@ import { ProviderSelect } from "@/components/provider-select";
 import { SortSelect } from "@/components/sort-select";
 import { StationList } from "@/components/station-list";
 import { Card } from "@/components/ui/card";
+import { useLanguage } from "@/hooks/use-language";
 import type { GeoPoint } from "@/hooks/use-realtime-location";
 import { cn } from "@/lib/utils";
 import type { SortMode } from "@/types/sort";
@@ -49,16 +50,28 @@ export function StationPanel({
   className,
   style,
 }: StationPanelProps) {
+  const { language } = useLanguage();
   const [sortMode, setSortMode] = useState<SortMode>("free");
+  const listTitle = language === "en" ? "Station list" : "站点列表";
+  const watchSummary =
+    language === "en"
+      ? `Watching ${watchlistCount} station${watchlistCount === 1 ? "" : "s"}`
+      : `关注 ${watchlistCount} 个站点`;
+  const filterLabel = language === "en" ? "Filter" : "筛选";
+  const sortLabel = language === "en" ? "Sort" : "排序";
 
   const handleSortChange = useCallback((mode: SortMode) => {
     setSortMode(mode);
   }, []);
 
   const handleRequireLocation = useCallback(() => {
-    toast.info("开启实时定位后才能按距离排序");
+    toast.info(
+      language === "en"
+        ? "Enable live location to sort by distance."
+        : "开启实时定位后才能按距离排序",
+    );
     onRequireLocation?.();
-  }, [onRequireLocation]);
+  }, [language, onRequireLocation]);
 
   return (
     <Card
@@ -70,16 +83,14 @@ export function StationPanel({
     >
       <div className="flex flex-col gap-4 border-b pb-5">
         <div className="flex items-center justify-between gap-3">
-          <h2 className="text-lg font-semibold">站点列表</h2>
-          <p className="text-xs text-muted-foreground">
-            关注 {watchlistCount} 个站点
-          </p>
+          <h2 className="text-lg font-semibold">{listTitle}</h2>
+          <p className="text-xs text-muted-foreground">{watchSummary}</p>
         </div>
         <div className="flex flex-wrap items-center gap-3 justify-between">
           <div className="flex items-center gap-1">
             <Filter
               className="h-4 w-4 text-muted-foreground"
-              aria-label="筛选"
+              aria-label={filterLabel}
             />
             <ProviderSelect
               providerId={providerId}
@@ -90,7 +101,7 @@ export function StationPanel({
           <div className="flex items-center gap-1 justify-end ml-auto">
             <ArrowUpDown
               className="h-4 w-4 text-muted-foreground"
-              aria-label="排序"
+              aria-label={sortLabel}
             />
             <SortSelect
               value={sortMode}

@@ -1,3 +1,4 @@
+import type { Language } from "@/types/language";
 import type { CampusId } from "@/types/station";
 
 export interface CampusConfig {
@@ -42,12 +43,42 @@ export const CAMPUS_MAP: CampusLookup = CAMPUS_LIST.reduce<CampusLookup>(
   { "": { id: "" as CampusId, name: "全部", center: AMAP_DEFAULT_CENTER } },
 );
 
+const CAMPUS_NAME_TRANSLATIONS: Record<
+  CampusId | "",
+  Record<Language, string>
+> = {
+  "": { zh: "全部", en: "All campuses" },
+  "1": { zh: "玉泉", en: "Yuquan" },
+  "2": { zh: "紫金港", en: "Zijingang" },
+  "3": { zh: "华家池", en: "Huajiachi" },
+  "4": { zh: "西溪", en: "Xixi" },
+  "5": { zh: "之江", en: "Zhijiang" },
+};
+
+export function getCampusDisplayName(
+  campusId: CampusId | "",
+  language: Language,
+): string {
+  const translations = CAMPUS_NAME_TRANSLATIONS[campusId];
+  const fallback = CAMPUS_NAME_TRANSLATIONS[""];
+  if (!translations) {
+    return fallback[language] ?? fallback.zh;
+  }
+  return (
+    translations[language] ??
+    translations.zh ??
+    fallback[language] ??
+    fallback.zh
+  );
+}
+
 export const DEFAULT_CAMPUS_ID: CampusId = "";
 
 export const STORAGE_KEYS = {
   watchlist: "zju_charger_watchlist",
   theme: "zju_charger_theme",
   guideHidden: "zju_charger_guide_hidden",
+  language: "zju_charger_language",
 } as const;
 
 export const DEFAULT_FETCH_INTERVAL = 60;

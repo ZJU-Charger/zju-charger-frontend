@@ -5,7 +5,9 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useLanguage } from "@/hooks/use-language";
 import type { GeoPoint } from "@/hooks/use-realtime-location";
+import { getCampusDisplayName } from "@/lib/config";
 import { distanceBetween } from "@/lib/geo";
 import { isSpecialStation } from "@/lib/station-style";
 import { cn } from "@/lib/utils";
@@ -61,6 +63,33 @@ export function StationList({
   sortMode,
   maxVisible,
 }: StationListProps) {
+  const { language } = useLanguage();
+  const loadingText = language === "en" ? "Loading..." : "加载中...";
+  const loadErrorTitle =
+    language === "en" ? "Failed to load data" : "加载数据失败";
+  const defaultErrorMessage =
+    language === "en"
+      ? "Unable to fetch the latest station data."
+      : "无法获取最新站点数据。";
+  const emptyTitle = language === "en" ? "No station data" : "暂无站点数据";
+  const emptyHint =
+    language === "en"
+      ? "Try switching campuses or refreshing."
+      : "尝试切换校区或刷新页面";
+  const notFetchedLabel = language === "en" ? "Not fetched" : "未抓取";
+  const campusFallback = language === "en" ? "Unassigned campus" : "未分配校区";
+  const freeLabel = language === "en" ? "Free" : "空闲";
+  const usedLabel = language === "en" ? "In use" : "占用";
+  const faultLabel = language === "en" ? "Fault" : "故障";
+  const totalLabel = language === "en" ? "Total" : "总数";
+  const removeFavoriteLabel =
+    language === "en" ? "Remove from favorites" : "取消关注";
+  const addFavoriteLabel =
+    language === "en" ? "Favorite this station" : "关注该站点";
+  const favoriteStateLabel = language === "en" ? "Favorited" : "已关注";
+  const favoriteActionLabel =
+    language === "en" ? "Mark as favorite" : "标记为关注";
+  const errorDetailsLabel = language === "en" ? "Details" : "详情";
   const contentRef = useRef<HTMLDivElement | null>(null);
   const [limitedHeight, setLimitedHeight] = useState<number | null>(null);
 
@@ -162,15 +191,24 @@ export function StationList({
 
   if (loading) {
     return (
-      <div className="py-8 text-center text-muted-foreground">加载中...</div>
+      <div className="py-8 text-center text-muted-foreground">
+        {loadingText}
+      </div>
     );
   }
 
   if (error) {
     return (
       <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-center text-red-700 dark:border-red-900/50 dark:bg-red-900/30 dark:text-red-200">
-        <p className="font-medium">加载数据失败</p>
-        <p className="text-sm">{error}</p>
+        <p className="font-medium">{loadErrorTitle}</p>
+        <p className="text-sm">
+          {defaultErrorMessage}
+          {error ? (
+            <span className="mt-1 block text-xs text-muted-foreground">
+              {errorDetailsLabel}: {error}
+            </span>
+          ) : null}
+        </p>
       </div>
     );
   }
@@ -178,8 +216,8 @@ export function StationList({
   if (stations.length === 0) {
     return (
       <div className="rounded-xl border border-yellow-200 bg-yellow-50 p-4 text-center text-yellow-800 dark:border-yellow-800/50 dark:bg-yellow-900/30 dark:text-yellow-100">
-        <p className="font-medium">暂无站点数据</p>
-        <p className="text-sm">尝试切换校区或刷新页面</p>
+        <p className="font-medium">{emptyTitle}</p>
+        <p className="text-sm">{emptyHint}</p>
       </div>
     );
   }
@@ -200,6 +238,10 @@ export function StationList({
           const progressBarClass = specialStation
             ? "h-full rounded-full bg-[var(--charger-exclusive)]"
             : "h-full rounded-full bg-[var(--charger-free)]";
+          const campusLabel =
+            station.campusId && station.campusId.length > 0
+              ? getCampusDisplayName(station.campusId, language)
+              : station.campusName || campusFallback;
           return (
             <div key={station.hashId} className="relative">
               <button
@@ -218,7 +260,7 @@ export function StationList({
                       {station.name}
                       {!station.isFetched ? (
                         <Badge variant="secondary" className="ml-2">
-                          未抓取
+                          {notFetchedLabel}
                         </Badge>
                       ) : null}
                     </h3>
@@ -230,9 +272,7 @@ export function StationList({
                     ) : null}
                   </div>
                   <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
-                    <Badge variant="outline">
-                      {station.campusName || "未分配校区"}
-                    </Badge>
+                    <Badge variant="outline">{campusLabel}</Badge>
                     <Badge variant="outline" className={providerBadgeClass}>
                       {station.provider}
                     </Badge>
@@ -242,16 +282,16 @@ export function StationList({
                   <span
                     className={cn("font-semibold", availabilityClass(station))}
                   >
-                    空闲 {station.free}
+                    {freeLabel} {station.free}
                   </span>
                   <span className="text-muted-foreground">
-                    占用 {station.used}
+                    {usedLabel} {station.used}
                   </span>
                   <span className="text-muted-foreground">
-                    故障 {station.error}
+                    {faultLabel} {station.error}
                   </span>
                   <span className="text-muted-foreground">
-                    总数 {station.total}
+                    {totalLabel} {station.total}
                   </span>
                 </div>
                 <div className="mt-3 h-2 w-full rounded-full bg-slate-100 dark:bg-slate-800">
@@ -275,12 +315,12 @@ export function StationList({
                   event.stopPropagation();
                   onToggleWatch(station);
                 }}
-                aria-label={watched ? "取消关注" : "关注该站点"}
+                aria-label={watched ? removeFavoriteLabel : addFavoriteLabel}
                 aria-pressed={watched}
               >
                 <span aria-hidden>★</span>
                 <span className="sr-only">
-                  {watched ? "已关注" : "标记为关注"}
+                  {watched ? favoriteStateLabel : favoriteActionLabel}
                 </span>
               </Button>
             </div>

@@ -13,9 +13,14 @@ import type {
   TopLevelFormatterParams,
 } from "echarts/types/dist/shared";
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/hooks/use-language";
 import type { GeoPoint } from "@/hooks/use-realtime-location";
 import { type AMapMap, type AMapMarker, loadAmap } from "@/lib/amap";
-import { AMAP_DEFAULT_CENTER, CAMPUS_MAP } from "@/lib/config";
+import {
+  AMAP_DEFAULT_CENTER,
+  CAMPUS_MAP,
+  getCampusDisplayName,
+} from "@/lib/config";
 import {
   isBatterySwapProvider,
   isSpecialStation,
@@ -127,6 +132,7 @@ export function MapView({
   onStopTracking,
   trackingHighlight = false,
 }: MapViewProps) {
+  const { language } = useLanguage();
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [chart, setChart] = useState<echarts.ECharts | null>(null);
   const [amapReady, setAmapReady] = useState<boolean>(false);
@@ -143,6 +149,10 @@ export function MapView({
     () => (theme === "dark" ? DARK_PALETTE : LIGHT_PALETTE),
     [theme],
   );
+  const startTrackingLabel =
+    language === "en" ? "Enable live location" : "开启实时定位";
+  const stopTrackingLabel =
+    language === "en" ? "Stop live location" : "停止实时定位";
   const platform = useMemo(detectPlatform, []);
 
   useEffect(() => {
@@ -378,6 +388,13 @@ export function MapView({
       zoom = 13;
     }
 
+    const campusLabel = language === "en" ? "Campus" : "校区";
+    const providerLabel = language === "en" ? "Provider" : "服务商";
+    const freeLabel = language === "en" ? "Free" : "空闲";
+    const totalLabel = language === "en" ? "Total" : "总数";
+    const faultLabel = language === "en" ? "Fault" : "故障";
+    const unassignedLabel = language === "en" ? "Unassigned" : "未分配";
+
     const tooltipOption: TooltipComponentOption = {
       trigger: "item",
       formatter: (params: TopLevelFormatterParams) => {
@@ -385,20 +402,24 @@ export function MapView({
         const station = payload.data?.station ?? undefined;
         const name = (params as { name?: string }).name;
         if (!station) return name ?? "";
+        const translatedCampus =
+          station.campusId && station.campusId.length > 0
+            ? getCampusDisplayName(station.campusId, language)
+            : station.campusName || unassignedLabel;
         return `
           <div style="min-width: 180px">
             <strong>${station.name}</strong><br/>
-            校区：${station.campusName || "未分配"}<br/>
-            服务商：${station.provider}<br/>
-            空闲：${station.free} / 总数：${station.total}<br/>
-            故障：${station.error}
+            ${campusLabel}：${translatedCampus}<br/>
+            ${providerLabel}：${station.provider}<br/>
+            ${freeLabel}：${station.free} / ${totalLabel}：${station.total}<br/>
+            ${faultLabel}：${station.error}
           </div>
         `;
       },
     };
 
     const scatterSeries: ScatterSeriesOption = {
-      name: "站点",
+      name: language === "en" ? "Stations" : "站点",
       type: "scatter",
       coordinateSystem: "amap",
       data: dataPoints,
@@ -408,7 +429,7 @@ export function MapView({
         const free = station?.free ?? 0;
         const baseSize = free > 8 ? 30 : free > 4 ? 26 : 22;
         if (params.data?.symbol === BATTERY_SWAP_SYMBOL) {
-          return [baseSize-2, baseSize-2];
+          return [baseSize - 2, baseSize - 2];
         }
         return baseSize;
       },
@@ -449,7 +470,7 @@ export function MapView({
 
     chart.setOption(option, true);
     setMapRenderKey((value) => value + 1);
-  }, [chart, dataPoints, campusId, amapReady, theme, palette]);
+  }, [chart, dataPoints, campusId, amapReady, theme, palette, language]);
 
   const gaodeNavOption = navTarget
     ? navigationConfig(navTarget, "gaode")
@@ -457,6 +478,25 @@ export function MapView({
   const systemNavOption = navTarget
     ? navigationConfig(navTarget, "system")
     : null;
+  const navTitle =
+    navTarget && language === "en"
+      ? `Navigate to ${navTarget.name}`
+      : navTarget
+        ? `导航到 ${navTarget.name}`
+        : "";
+  const switchingNavText =
+    language === "en" ? "Switching navigation..." : "正在切换导航...";
+  const pendingNavText =
+    pendingNavTarget && language === "en"
+      ? `Switching to ${pendingNavTarget.name}`
+      : pendingNavTarget
+        ? `切换至 ${pendingNavTarget.name}`
+        : null;
+  const closeNavAria =
+    language === "en" ? "Close navigation panel" : "关闭导航面板";
+  const gaodeButtonText =
+    language === "en" ? "Gaode Map Nav" : "高德地图导航";
+  const systemButtonText = language === "en" ? "System Map Nav" : "系统地图导航";
 
   const getAmap = useCallback((): AMapMap | null => {
     if (!chart) return null;
@@ -632,7 +672,11 @@ export function MapView({
   if (!amapKey) {
     return (
       <div className="flex h-full min-h-[360px] flex-1 flex-col items-center justify-center rounded-2xl border bg-card p-6 text-center text-sm text-muted-foreground">
-        <p>缺少 AMap Key（设置 NEXT_PUBLIC_AMAP_KEY 环境变量）</p>
+        <p>
+          {language === "en"
+            ? "Missing AMap Key (set NEXT_PUBLIC_AMAP_KEY)."
+            : "缺少 AMap Key（设置 NEXT_PUBLIC_AMAP_KEY 环境变量）"}
+        </p>
       </div>
     );
   }
@@ -652,7 +696,7 @@ export function MapView({
               : undefined,
           )}
         >
-          {tracking ? "停止实时定位" : "开启实时定位"}
+          {tracking ? stopTrackingLabel : startTrackingLabel}
         </Button>
       </div>
       {navTarget && (
@@ -660,14 +704,10 @@ export function MapView({
           <div className="mb-2 flex items-center justify-between gap-2">
             <div>
               <p className="text-sm font-semibold" aria-live="polite">
-                {isSwitchingNav
-                  ? "正在切换导航..."
-                  : `导航到 ${navTarget.name}`}
+                {isSwitchingNav ? switchingNavText : navTitle}
               </p>
-              {isSwitchingNav && pendingNavTarget ? (
-                <p className="text-xs text-emerald-500">
-                  切换至 {pendingNavTarget.name}
-                </p>
+              {isSwitchingNav && pendingNavText ? (
+                <p className="text-xs text-emerald-500">{pendingNavText}</p>
               ) : null}
             </div>
             <button
@@ -677,7 +717,7 @@ export function MapView({
                 cancelNavTransition();
                 setNavTarget(null);
               }}
-              aria-label="关闭导航面板"
+              aria-label={closeNavAria}
             >
               <span className="text-lg leading-none">×</span>
             </button>
@@ -689,7 +729,7 @@ export function MapView({
                 attemptOpen(gaodeNavOption.primary, gaodeNavOption.fallback)
               }
             >
-              高德地图导航
+              {gaodeButtonText}
             </Button>
             {systemNavOption ? (
               <Button
@@ -699,7 +739,7 @@ export function MapView({
                   attemptOpen(systemNavOption.primary, systemNavOption.fallback)
                 }
               >
-                系统导航
+                {systemButtonText}
               </Button>
             ) : null}
           </div>

@@ -1,13 +1,18 @@
 import { NIGHT_WINDOW } from "@/lib/config";
+import { DEFAULT_LANGUAGE, type Language } from "@/types/language";
 
-export function formatTimestamp(value?: string | null): string {
-  if (!value) return "未知";
+export function formatTimestamp(
+  value?: string | null,
+  language: Language = DEFAULT_LANGUAGE,
+): string {
+  if (!value) return language === "en" ? "Unknown" : "未知";
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
   const hh = String(date.getHours()).padStart(2, "0");
   const mi = String(date.getMinutes()).padStart(2, "0");
   const ss = String(date.getSeconds()).padStart(2, "0");
-  return `更新于 ${hh}:${mi}:${ss}`;
+  const prefix = language === "en" ? "Updated at" : "更新于";
+  return `${prefix} ${hh}:${mi}:${ss}`;
 }
 
 export function isNightTime(date = new Date()): boolean {

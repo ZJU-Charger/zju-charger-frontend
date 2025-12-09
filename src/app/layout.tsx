@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { AppProviders } from "@/components/app-providers";
 import { ClarityScript } from "@/components/clarity";
 import { Toaster } from "@/components/ui/sonner";
 
@@ -16,9 +17,11 @@ export default function RootLayout({
   return (
     <html lang="zh-CN" suppressHydrationWarning>
       <body className="bg-background font-sans antialiased">
-        {children}
-        <Toaster position="top-center" richColors />
-        <ClarityScript />
+        <AppProviders>
+          {children}
+          <Toaster position="top-center" richColors />
+          <ClarityScript />
+        </AppProviders>
       </body>
     </html>
   );

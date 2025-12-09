@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { wgs84ToGcj02 } from "@/lib/geo";
+import { DEFAULT_LANGUAGE, type Language } from "@/types/language";
 
 export interface GeoPoint {
   longitude: number;
@@ -9,9 +10,13 @@ export interface GeoPoint {
 
 interface Options {
   onError?: (message: string) => void;
+  language?: Language;
 }
 
-export function useRealtimeLocation({ onError }: Options = {}) {
+export function useRealtimeLocation({
+  onError,
+  language = DEFAULT_LANGUAGE,
+}: Options = {}) {
   const [point, setPoint] = useState<GeoPoint | null>(null);
   const [watching, setWatching] = useState(false);
   const watchIdRef = useRef<number | null>(null);
@@ -27,7 +32,11 @@ export function useRealtimeLocation({ onError }: Options = {}) {
 
   const start = useCallback(() => {
     if (!navigator.geolocation) {
-      onError?.("当前浏览器不支持定位");
+      onError?.(
+        language === "en"
+          ? "Current browser does not support location."
+          : "当前浏览器不支持定位",
+      );
       return;
     }
     if (watchIdRef.current !== null) {
@@ -47,18 +56,25 @@ export function useRealtimeLocation({ onError }: Options = {}) {
         setWatching(true);
       },
       (error) => {
-        const messages: Record<number, string> = {
-          1: "定位权限被拒绝",
-          2: "无法获取定位信号",
-          3: "定位超时",
-        };
+        const messages: Record<number, string> =
+          language === "en"
+            ? {
+                1: "Location permission denied",
+                2: "Unable to acquire location signal",
+                3: "Location request timed out",
+              }
+            : {
+                1: "定位权限被拒绝",
+                2: "无法获取定位信号",
+                3: "定位超时",
+              };
         onError?.(messages[error.code] ?? error.message);
         stop();
       },
       { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 },
     );
     watchIdRef.current = id;
-  }, [onError, stop]);
+  }, [language, onError, stop]);
 
   useEffect(() => () => stop(), [stop]);
 

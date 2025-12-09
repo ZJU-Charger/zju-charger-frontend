@@ -10,6 +10,7 @@ import { SummaryGrid } from "@/components/summary-grid";
 import { Card } from "@/components/ui/card";
 import { useAutoRefresh } from "@/hooks/use-auto-refresh";
 import { useConfig } from "@/hooks/use-config";
+import { useLanguage } from "@/hooks/use-language";
 import { useProviders } from "@/hooks/use-providers";
 import { useRealtimeLocation } from "@/hooks/use-realtime-location";
 import { useStations } from "@/hooks/use-stations";
@@ -51,6 +52,7 @@ export default function HomePage() {
   const { theme, toggleTheme } = useThemeMode();
   const [autoSelectionDone, setAutoSelectionDone] = useState(false);
   const { width: windowWidth, height: windowHeight } = useWindowSize();
+  const { language } = useLanguage();
   const { providers } = useProviders();
   const { counts, isWatched, toggleWatch } = useWatchlist();
   const stationsState = useStations(
@@ -72,6 +74,7 @@ export default function HomePage() {
     stop,
   } = useRealtimeLocation({
     onError: (message) => toast.error(message),
+    language,
   });
 
   const handleRefresh = useCallback(() => {
@@ -289,7 +292,9 @@ export default function HomePage() {
         </div>
       </main>
       <footer className="shrink-0 px-4 pb-2 text-center text-xs text-muted-foreground">
-        浙ICP备2025206156号 · 使用 GPLv3 协议开源
+        {language === "en"
+          ? "ICP No. 浙ICP备2025206156号 · Open source under GPLv3"
+          : "浙ICP备2025206156号 · 使用 GPLv3 协议开源"}
       </footer>
     </div>
   );

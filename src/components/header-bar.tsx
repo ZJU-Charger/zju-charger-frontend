@@ -114,37 +114,35 @@ export function HeaderBar({
                 <div className="space-y-3 text-sm text-muted-foreground">
                   <ol className="space-y-2 list-decimal pl-5">
                     <li>
-                      校区卡片：点击<b>校区卡片</b>即可切换校区。
+                      校区切换：点击<b>校区卡片</b>即可切换校区。
                     </li>
                     <li>
-                      地图：在地图站点上可通过<b>长按或双击</b>选择导航。
+                      站点排序：开启定位后，实时显示站点距离，可按照距离优先或者空闲数量优先对站点进行排序。。
                     </li>
                     <li>
-                      站点列表：
-                      <ul>
-                        <li>
-                          可点击列表中的<b>筛选</b>按钮选择服务商，并按
-                          <b>距离优先</b>或<b>空闲优先</b>排序。
-                        </li>
-                        <li>
-                          点击列表中的<b>站点</b>，地图将快速定位到对应位置。
-                        </li>
-                        <li>
-                          点击<b>星标</b>关注站点，关注的站点会显示在列表顶部。
-                        </li>
-                      </ul>
+                      站点导航：在地图站点上可通过<b>长按或双击</b>选择导航。
+                    </li>
+                    <li>
+                      站点关注：点击<b>星标</b>关注站点，显示并保存在列表顶部。
                     </li>
                     <li>颜色模式：点击右上角按钮可切换明亮/暗色模式。</li>
                     <li>
                       快捷方式：在 Safari 中通过“分享 →
                       添加到主屏幕”可创建快捷方式。
                     </li>
-                    <li>实时定位默认开启，可通过地图右下角按钮关闭。</li>
-                    <li>
-                      本站仅用于学习与交流，不收集任何个人信息。使用本网站即表示同意
-                      <b>使用过程中出现的任何问题由使用者自行承担</b>。
-                    </li>
                   </ol>
+                  <ul className="list-disc pl-5 space-y-2">
+                      <li>
+                        实时定位默认开启，可通过地图右下角按钮关闭。<b>微信内直接打开无法使用实时定位</b>，请使用系统浏览器打开。
+                      </li>
+                      <li>
+                        数据来源为各服务商小程序,遵循各自 Robots 协议获取，无任何合作关系，<b>更新频率为90秒</b>。
+                      </li>
+                      <li>
+                        本站为个人公益开发，仅用于学习交流。<b>不存储、传播任何用户的个人信息</b>。
+                        使用本网站即表示同意<b>使用过程中出现的任何问题由使用者自行承担</b>。
+                      </li>
+                    </ul>
                 </div>
                 <DialogFooter className="flex flex-row flex-nowrap w-full items-center justify-between sm:justify-between gap-3 space-x-0 sm:space-x-0">
                   <div className="flex items-center gap-2 rounded-xl border bg-muted/40 px-3 py-2 text-sm text-muted-foreground">

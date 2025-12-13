@@ -2,7 +2,7 @@
 
 import { BookOpen, Github, Mail, Moon, Sun } from "lucide-react";
 import Image from "next/image";
-import { type ReactNode, useEffect, useState } from "react";
+import { type ReactNode, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -17,6 +17,7 @@ import { Switch } from "@/components/ui/switch";
 import { useLanguage } from "@/hooks/use-language";
 import { STORAGE_KEYS } from "@/lib/config";
 import { formatTimestamp } from "@/lib/time";
+import { useUIStore } from "@/store/ui.store";
 import type { Language } from "@/types/language";
 
 interface HeaderBarProps {
@@ -149,16 +150,13 @@ const GUIDE_NOTES: GuideEntry[] = [
     content: {
       zh: (
         <>
-          本站为个人公益开发，仅用于学习交流。
-          <b>不存储、传播任何用户的个人信息</b>， 使用本网站即表示同意
-          <b>使用过程中出现的任何问题由使用者自行承担</b>。
+          隐私声明：本网站不储存任何个人信息，不收集除了流量统计（由第三方平台提供）所需以外的任何信息，请大家放心使用。
+          本站为个人公益开发，仅用于学习交流，使用本网站即表示同意：<b>使用过程中出现的任何问题由使用者自行承担</b>。
         </>
       ),
       en: (
         <>
-          This site is a personal, non-profit project for learning only.
-          <b> No personal information is stored or shared</b>; by using it, you
-          agree to assume any risks yourself.
+            <b>Privacy Notice:</b> This website does not store any personal information. The site includes JavaScript scripts to count and record visitor data and click sources, provided by third-party analytics platforms. This site is a personal, non-profit project for learning only; by using it, you agree to assume any risks yourself.
         </>
       ),
     },
@@ -171,8 +169,10 @@ export function HeaderBar({
   theme,
 }: HeaderBarProps) {
   const { language, toggleLanguage } = useLanguage();
-  const [manualOpen, setManualOpen] = useState(false);
-  const [dontShowGuide, setDontShowGuide] = useState(false);
+  const manualOpen = useUIStore((state) => state.guideManualOpen);
+  const dontShowGuide = useUIStore((state) => state.guideSuppressed);
+  const setManualOpen = useUIStore((state) => state.setGuideManualOpen);
+  const setDontShowGuide = useUIStore((state) => state.setGuideSuppressed);
   const guideLabel = language === "en" ? "User guide" : "使用说明书";
   const dontShowAriaLabel =
     language === "en" ? "Do not show the guide again" : "不再显示说明书";
@@ -188,7 +188,7 @@ export function HeaderBar({
     const suppressed = localStorage.getItem(STORAGE_KEYS.guideHidden) === "1";
     setManualOpen(!suppressed);
     setDontShowGuide(suppressed);
-  }, []);
+  }, [setManualOpen, setDontShowGuide]);
 
   const handleGuideToggle = (value: boolean) => {
     setDontShowGuide(value);

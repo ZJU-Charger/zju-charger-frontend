@@ -19,6 +19,7 @@ import { useWatchlist } from "@/hooks/use-watchlist";
 import { useWindowSize } from "@/hooks/use-window-size";
 import { CAMPUS_LIST } from "@/lib/config";
 import { distanceBetween } from "@/lib/geo";
+import { useUIStore } from "@/store/ui.store";
 import type { CampusId, StationRecord } from "@/types/station";
 
 const DEFAULT_SHORT_SCREEN_CARD_COUNT = 3;
@@ -47,10 +48,23 @@ const SHORT_SCREEN_HEIGHT = readPositiveNumber(
 
 export default function HomePage() {
   const ALL_PROVIDERS = "all";
-  const [campusId, setCampusId] = useState<CampusId>("");
-  const [providerId, setProviderId] = useState(ALL_PROVIDERS);
   const { theme, toggleTheme } = useThemeMode();
-  const [autoSelectionDone, setAutoSelectionDone] = useState(false);
+  const campusId = useUIStore((state) => state.campusId);
+  const providerId = useUIStore((state) => state.providerId);
+  const autoSelectionDone = useUIStore((state) => state.autoSelectionDone);
+  const focusStation = useUIStore((state) => state.focusStation);
+  const trackingHighlight = useUIStore((state) => state.trackingHighlight);
+  const setCampusId = useUIStore((state) => state.setCampusId);
+  const toggleCampus = useUIStore((state) => state.toggleCampus);
+  const setProviderId = useUIStore((state) => state.setProviderId);
+  const setAutoSelectionDone = useUIStore(
+    (state) => state.setAutoSelectionDone,
+  );
+  const setFocusStation = useUIStore((state) => state.setFocusStation);
+  const clearFocusStation = useUIStore((state) => state.clearFocusStation);
+  const setTrackingHighlight = useUIStore(
+    (state) => state.setTrackingHighlight,
+  );
   const { width: windowWidth, height: windowHeight } = useWindowSize();
   const { language } = useLanguage();
   const { providers } = useProviders();
@@ -60,8 +74,6 @@ export default function HomePage() {
     campusId,
   );
   const refreshInterval = useConfig();
-  const [focusStation, setFocusStation] = useState<StationRecord | null>(null);
-  const [trackingHighlight, setTrackingHighlight] = useState(false);
   const trackingHighlightTimer = useRef<number | null>(null);
   const headerSectionRef = useRef<HTMLDivElement | null>(null);
   const summarySectionRef = useRef<HTMLDivElement | null>(null);
@@ -85,11 +97,14 @@ export default function HomePage() {
 
   const watchlistCount = counts.stationCount;
 
-  const handleCampusSelect = useCallback((id: CampusId) => {
-    setAutoSelectionDone(true);
-    setCampusId((prev) => (prev === id ? "" : id));
-    setFocusStation(null);
-  }, []);
+  const handleCampusSelect = useCallback(
+    (id: CampusId) => {
+      setAutoSelectionDone(true);
+      toggleCampus(id);
+      clearFocusStation();
+    },
+    [setAutoSelectionDone, toggleCampus, clearFocusStation],
+  );
 
   const handleStationSelect = useCallback(
     (station: StationRecord) => {
@@ -99,7 +114,7 @@ export default function HomePage() {
         setCampusId(station.campusId);
       }
     },
-    [campusId],
+    [campusId, setAutoSelectionDone, setCampusId, setFocusStation],
   );
 
   useEffect(() => {
@@ -125,7 +140,7 @@ export default function HomePage() {
     });
     setCampusId(nearest.id);
     setAutoSelectionDone(true);
-  }, [autoSelectionDone, userLocation]);
+  }, [autoSelectionDone, userLocation, setAutoSelectionDone, setCampusId]);
 
   useEffect(() => {
     if (autoSelectionDone) return;
@@ -134,7 +149,7 @@ export default function HomePage() {
       setAutoSelectionDone(true);
     }, 8000);
     return () => window.clearTimeout(timer);
-  }, [autoSelectionDone]);
+  }, [autoSelectionDone, setAutoSelectionDone, setCampusId]);
 
   const isDesktopWidth =
     windowWidth > 0 ? windowWidth >= DESKTOP_BREAKPOINT : false;
@@ -211,7 +226,7 @@ export default function HomePage() {
         trackingHighlightTimer.current = null;
       }
     }
-  }, [userLocation, trackingHighlight]);
+  }, [userLocation, trackingHighlight, setTrackingHighlight]);
 
   const triggerTrackingHighlight = useCallback(() => {
     setTrackingHighlight(true);
@@ -222,7 +237,7 @@ export default function HomePage() {
       setTrackingHighlight(false);
       trackingHighlightTimer.current = null;
     }, 1600);
-  }, []);
+  }, [setTrackingHighlight]);
 
   return (
     <div className="flex min-h-screen flex-col bg-background lg:h-screen lg:overflow-hidden">

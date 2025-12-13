@@ -10,7 +10,7 @@ export function NightNotice() {
   const message =
     language === "en"
       ? "It's late and charging services may be paused. Get some rest 🌙"
-      : "夜深了，充电服务可能暂停，请注意休息 🌙";
+      : "夜深了，充电服务暂停，请注意休息 🌙";
   return (
     <Card className="bg-blue-50/80 text-blue-800 dark:bg-blue-900/30 dark:text-blue-100">
       <p className="text-sm text-center">{message}</p>

@@ -1,26 +1,9 @@
 "use client";
 
-import {
-  createContext,
-  type ReactNode,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { type ReactNode, useEffect } from "react";
 import { STORAGE_KEYS } from "@/lib/config";
+import { useUIStore } from "@/store/ui.store";
 import { DEFAULT_LANGUAGE, type Language } from "@/types/language";
-
-interface LanguageContextValue {
-  language: Language;
-  setLanguage: (language: Language) => void;
-  toggleLanguage: () => void;
-}
-
-const LanguageContext = createContext<LanguageContextValue | undefined>(
-  undefined,
-);
 
 function readInitialLanguage(): Language {
   if (typeof window === "undefined") {
@@ -31,9 +14,12 @@ function readInitialLanguage(): Language {
 }
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [language, setLanguage] = useState<Language>(() =>
-    readInitialLanguage(),
-  );
+  const language = useUIStore((state) => state.language);
+  const setLanguage = useUIStore((state) => state.setLanguage);
+
+  useEffect(() => {
+    setLanguage(readInitialLanguage());
+  }, [setLanguage]);
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -47,32 +33,14 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     }
   }, [language]);
 
-  const toggleLanguage = useCallback(() => {
-    setLanguage((prev) => (prev === "zh" ? "en" : "zh"));
-  }, []);
-
-  const value = useMemo(
-    () => ({
-      language,
-      setLanguage,
-      toggleLanguage,
-    }),
-    [language, toggleLanguage],
-  );
-
-  return (
-    <LanguageContext.Provider value={value}>
-      {children}
-    </LanguageContext.Provider>
-  );
+  return children;
 }
 
 export function useLanguage() {
-  const context = useContext(LanguageContext);
-  if (!context) {
-    throw new Error("useLanguage must be used within a LanguageProvider");
-  }
-  return context;
+  const language = useUIStore((state) => state.language);
+  const setLanguage = useUIStore((state) => state.setLanguage);
+  const toggleLanguage = useUIStore((state) => state.toggleLanguage);
+  return { language, setLanguage, toggleLanguage };
 }
 
 export type { Language } from "@/types/language";

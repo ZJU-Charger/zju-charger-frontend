@@ -1,37 +1,20 @@
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { fetchProviders } from "@/lib/api";
-import type { ProviderInfo } from "@/types/station";
 
 export function useProviders() {
-  const [providers, setProviders] = useState<ProviderInfo[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data, error, isPending, isFetching } = useQuery({
+    queryKey: ["providers"],
+    queryFn: fetchProviders,
+    staleTime: 5 * 60 * 1000,
+  });
 
-  useEffect(() => {
-    let cancelled = false;
-    async function load() {
-      setLoading(true);
-      try {
-        const data = await fetchProviders();
-        if (!cancelled) {
-          setProviders(data);
-          setError(null);
-        }
-      } catch (err) {
-        if (!cancelled) {
-          setError(err instanceof Error ? err.message : "加载服务商失败");
-        }
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
-      }
-    }
-    load();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  return { providers, loading, error };
+  return {
+    providers: data ?? [],
+    loading: isPending || isFetching,
+    error: error
+      ? error instanceof Error
+        ? error.message
+        : "加载服务商失败"
+      : null,
+  };
 }

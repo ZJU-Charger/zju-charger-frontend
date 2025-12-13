@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useCallback, useMemo } from "react";
 import {
   fetchStationsMetadata,
   fetchStatus,
@@ -33,15 +34,9 @@ export function useStations(
   providerId: string,
   campusId: CampusId,
 ): UseStationsResult {
-  const [stations, setStations] = useState<StationRecord[]>([]);
-  const [updatedAt, setUpdatedAt] = useState<string | undefined>();
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [rateLimited, setRateLimited] = useState(false);
-
-  const refresh = useCallback(async () => {
-    setLoading(true);
-    try {
+  const { data, error, isPending, isFetching, refetch } = useQuery({
+    queryKey: ["stations", providerId || "all"],
+    queryFn: async () => {
       const [status, metadata] = await Promise.all([
         fetchStatus(providerId || undefined),
         fetchStationsMetadata(),
@@ -51,25 +46,20 @@ export function useStations(
         metadata.stations || [],
         providerId || undefined,
       );
-      setStations(merged);
-      setUpdatedAt(status.updated_at || metadata.updated_at);
-      setError(null);
-      setRateLimited(false);
-    } catch (err) {
-      if (err instanceof RateLimitError) {
-        setRateLimited(true);
-        setError(err.message);
-      } else {
-        setError(err instanceof Error ? err.message : "加载数据失败");
-      }
-    } finally {
-      setLoading(false);
-    }
-  }, [providerId]);
+      return {
+        stations: merged,
+        updatedAt: status.updated_at || metadata.updated_at,
+      };
+    },
+    refetchOnWindowFocus: false,
+  });
 
-  useEffect(() => {
-    refresh();
-  }, [refresh]);
+  const stations = data?.stations ?? [];
+  const updatedAt = data?.updatedAt;
+
+  const refresh = useCallback(async () => {
+    await refetch({ throwOnError: false });
+  }, [refetch]);
 
   const campusStations = useMemo(() => {
     if (!campusId) return stations;
@@ -98,9 +88,13 @@ export function useStations(
   }, [stations]);
 
   return {
-    loading,
-    error,
-    rateLimited,
+    loading: isPending || isFetching,
+    error: error
+      ? error instanceof Error
+        ? error.message
+        : "加载数据失败"
+      : null,
+    rateLimited: error instanceof RateLimitError,
     updatedAt,
     stations,
     mapStations,

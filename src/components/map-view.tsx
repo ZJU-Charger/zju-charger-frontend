@@ -98,16 +98,17 @@ function getStationColor(
   palette: typeof LIGHT_PALETTE,
 ): string {
   if (isSpecialStation(station)) return palette.special;
-  
+
   // 如果站点总数大于10，使用绝对数量规则
   if (station.total > 10) {
     if (station.free <= 4) return palette.error; // 0-4个空余桩：红色
     if (station.free <= 9) return palette.busy; // 5-9个空余桩：橙色
     return palette.free; // 10+个空余桩：绿色
   }
-  
+
   // 如果站点总数小于等于10，使用百分比规则
-  const freePercentage = station.total > 0 ? (station.free / station.total) * 100 : 0;
+  const freePercentage =
+    station.total > 0 ? (station.free / station.total) * 100 : 0;
   if (freePercentage < 30) return palette.error; // 小于30%：红色
   if (freePercentage <= 50) return palette.busy; // 30-50%：橙色
   return palette.free; // 大于50%：绿色
@@ -450,7 +451,9 @@ export function MapView({
             const color = getStationColor(station, palette);
             // 临时调试日志
             if (process.env.NODE_ENV === "development") {
-              console.log(`Station ${station.name}: total=${station.total}, free=${station.free}, color=${color}`);
+              console.log(
+                `Station ${station.name}: total=${station.total}, free=${station.free}, color=${color}`,
+              );
             }
             return color;
           }
@@ -511,9 +514,9 @@ export function MapView({
         : null;
   const closeNavAria =
     language === "en" ? "Close navigation panel" : "关闭导航面板";
-  const gaodeButtonText =
-    language === "en" ? "Gaode Map Nav" : "高德地图导航";
-  const systemButtonText = language === "en" ? "System Map Nav" : "系统地图导航";
+  const gaodeButtonText = language === "en" ? "Gaode Map Nav" : "高德地图导航";
+  const systemButtonText =
+    language === "en" ? "System Map Nav" : "系统地图导航";
 
   const getAmap = useCallback((): AMapMap | null => {
     if (!chart) return null;

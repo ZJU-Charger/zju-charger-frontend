@@ -42,16 +42,17 @@ function formatDistance(distance: number | null): string | null {
 function availabilityClass(station: StationRecord): string {
   if (isSpecialStation(station)) return "text-[var(--charger-exclusive)]";
   if (station.error > 0) return "text-[var(--charger-error)]";
-  
+
   // 如果站点总数大于10，使用绝对数量规则
   if (station.total > 10) {
     if (station.free <= 4) return "text-[var(--charger-error)]"; // 0-4个空余桩：红色
     if (station.free <= 9) return "text-[var(--charger-busy)]"; // 5-9个空余桩：橙色
     return "text-[var(--charger-free)]"; // 10+个空余桩：绿色
   }
-  
+
   // 如果站点总数小于等于10，使用百分比规则
-  const freePercentage = station.total > 0 ? (station.free / station.total) * 100 : 0;
+  const freePercentage =
+    station.total > 0 ? (station.free / station.total) * 100 : 0;
   if (freePercentage < 30) return "text-[var(--charger-error)]"; // 小于30%：红色
   if (freePercentage <= 50) return "text-[var(--charger-busy)]"; // 30-50%：橙色
   return "text-[var(--charger-free)]"; // 大于50%：绿色
@@ -289,19 +290,22 @@ export function StationList({
                     </Badge>
                   </div>
                 </div>
-                <div className="mt-4 flex flex-wrap items-center gap-4 text-sm">
+                <div className="mt-4 flex items-center gap-4 overflow-x-auto whitespace-nowrap text-sm">
                   <span
-                    className={cn("font-semibold", availabilityClass(station))}
+                    className={cn(
+                      "shrink-0 font-semibold",
+                      availabilityClass(station),
+                    )}
                   >
                     {freeLabel} {station.free}
                   </span>
-                  <span className="text-muted-foreground">
+                  <span className="shrink-0 text-muted-foreground">
                     {usedLabel} {station.used}
                   </span>
-                  <span className="text-muted-foreground">
+                  <span className="shrink-0 text-muted-foreground">
                     {faultLabel} {station.error}
                   </span>
-                  <span className="text-muted-foreground">
+                  <span className="shrink-0 text-muted-foreground">
                     {totalLabel} {station.total}
                   </span>
                 </div>

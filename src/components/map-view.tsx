@@ -98,10 +98,19 @@ function getStationColor(
   palette: typeof LIGHT_PALETTE,
 ): string {
   if (isSpecialStation(station)) return palette.special;
-  if (station.error > 0) return palette.error;
-  if (station.free === 0) return palette.error;
-  if (station.free <= 3) return palette.busy;
-  return palette.free;
+  
+  // 如果站点总数大于10，使用绝对数量规则
+  if (station.total > 10) {
+    if (station.free <= 4) return palette.error; // 0-4个空余桩：红色
+    if (station.free <= 9) return palette.busy; // 5-9个空余桩：橙色
+    return palette.free; // 10+个空余桩：绿色
+  }
+  
+  // 如果站点总数小于等于10，使用百分比规则
+  const freePercentage = station.total > 0 ? (station.free / station.total) * 100 : 0;
+  if (freePercentage < 30) return palette.error; // 小于30%：红色
+  if (freePercentage <= 50) return palette.busy; // 30-50%：橙色
+  return palette.free; // 大于50%：绿色
 }
 
 function getStationSymbol(station: StationRecord): StationSymbol {
@@ -437,7 +446,15 @@ export function MapView({
         color: (rawParams: CallbackDataParams) => {
           const params = rawParams as TooltipParams;
           const station = params.data?.station ?? undefined;
-          return station ? getStationColor(station, palette) : palette.free;
+          if (station) {
+            const color = getStationColor(station, palette);
+            // 临时调试日志
+            if (process.env.NODE_ENV === "development") {
+              console.log(`Station ${station.name}: total=${station.total}, free=${station.free}, color=${color}`);
+            }
+            return color;
+          }
+          return palette.free;
         },
         borderColor: "#ffffff",
         borderWidth: 2,

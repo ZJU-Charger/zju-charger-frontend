@@ -41,9 +41,20 @@ function formatDistance(distance: number | null): string | null {
 
 function availabilityClass(station: StationRecord): string {
   if (isSpecialStation(station)) return "text-[var(--charger-exclusive)]";
-  if (station.free > 0) return "text-[var(--charger-free)]";
   if (station.error > 0) return "text-[var(--charger-error)]";
-  return "text-muted-foreground";
+  
+  // 如果站点总数大于10，使用绝对数量规则
+  if (station.total > 10) {
+    if (station.free <= 4) return "text-[var(--charger-error)]"; // 0-4个空余桩：红色
+    if (station.free <= 9) return "text-[var(--charger-busy)]"; // 5-9个空余桩：橙色
+    return "text-[var(--charger-free)]"; // 10+个空余桩：绿色
+  }
+  
+  // 如果站点总数小于等于10，使用百分比规则
+  const freePercentage = station.total > 0 ? (station.free / station.total) * 100 : 0;
+  if (freePercentage < 30) return "text-[var(--charger-error)]"; // 小于30%：红色
+  if (freePercentage <= 50) return "text-[var(--charger-busy)]"; // 30-50%：橙色
+  return "text-[var(--charger-free)]"; // 大于50%：绿色
 }
 
 function progressWidth(station: StationRecord): string {

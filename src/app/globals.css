@@ -177,3 +177,9 @@ body {
     opacity: 0;
   }
 }
+
+/* 确保高德地图 logo 不会遮挡 Dialog 等上层组件 */
+.amap-logo,
+.amap-copyright {
+  z-index: 1 !important;
+}

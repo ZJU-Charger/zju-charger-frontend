@@ -259,13 +259,13 @@ export function HeaderBar({
                 </Button>
               </DialogTrigger>
               <DialogContent
-                className="w-[92vw] max-w-md space-y-4 sm:max-w-lg"
+                className="flex flex-col w-[92vw] max-w-md sm:max-w-lg max-h-[85vh]"
                 hideCloseButton
               >
-                <DialogHeader>
+                <DialogHeader className="flex-shrink-0">
                   <DialogTitle>{guideLabel}</DialogTitle>
                 </DialogHeader>
-                <div className="space-y-3 text-sm text-muted-foreground">
+                <div className="flex-1 overflow-y-auto space-y-3 text-sm text-muted-foreground pr-2 -mr-2">
                   <ol className="space-y-2 list-decimal pl-5">
                     {GUIDE_STEPS.map((entry) => (
                       <li key={entry.id}>{entry.content[language]}</li>
@@ -277,7 +277,7 @@ export function HeaderBar({
                     ))}
                   </ul>
                 </div>
-                <DialogFooter className="flex flex-row flex-nowrap w-full items-center justify-between sm:justify-between gap-3 space-x-0 sm:space-x-0">
+                <DialogFooter className="flex-shrink-0 flex flex-row flex-nowrap w-full items-center justify-between sm:justify-between gap-3 space-x-0 sm:space-x-0 pt-4">
                   <div className="flex items-center gap-2 rounded-xl border bg-muted/40 px-3 py-2 text-sm text-muted-foreground">
                     <Switch
                       checked={dontShowGuide}

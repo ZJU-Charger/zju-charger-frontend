@@ -40,23 +40,24 @@ async function request<T>(input: RequestInfo, init?: RequestInit): Promise<T> {
 
 const API_BASE = (process.env.NEXT_PUBLIC_API_BASE ?? "").replace(/\/$/, "");
 function withBase(path: string) {
-  if (!API_BASE) return path;
-  return `${API_BASE}${path}`;
+  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+  if (!API_BASE) return `/api${normalizedPath}`;
+  return `${API_BASE}${normalizedPath}`;
 }
 
 export async function fetchProviders() {
-  return request<ProviderInfo[]>(withBase("/api/providers"));
+  return request<ProviderInfo[]>(withBase("/providers"));
 }
 
 export async function fetchStatus(provider?: string): Promise<StatusResponse> {
   const url = provider
-    ? withBase(`/api/status?provider=${encodeURIComponent(provider)}`)
-    : withBase("/api/status");
+    ? withBase(`/status?provider=${encodeURIComponent(provider)}`)
+    : withBase("/status");
   return request<StatusResponse>(url);
 }
 
 export async function fetchStationsMetadata(): Promise<StationsResponse> {
-  return request<StationsResponse>(withBase("/api/stations"));
+  return request<StationsResponse>(withBase("/stations"));
 }
 
 function pickNumber(value: unknown): number | null {

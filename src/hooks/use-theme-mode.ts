@@ -3,13 +3,21 @@ import { STORAGE_KEYS } from "@/lib/config";
 
 type ThemeMode = "light" | "dark";
 
+function getSafeLocalStorage(): Storage | null {
+  if (typeof window === "undefined") return null;
+  const storage = window.localStorage;
+  if (!storage || typeof storage.getItem !== "function") return null;
+  return storage;
+}
+
 function readInitialTheme(): ThemeMode {
-  if (typeof localStorage === "undefined") return "light";
-  const stored = localStorage.getItem(STORAGE_KEYS.theme) as ThemeMode | null;
+  const storage = getSafeLocalStorage();
+  if (!storage) return "light";
+  const stored = storage.getItem(STORAGE_KEYS.theme) as ThemeMode | null;
   if (stored === "light" || stored === "dark") return stored;
-  const prefersDark = window.matchMedia?.(
-    "(prefers-color-scheme: dark)",
-  ).matches;
+  const prefersDark =
+    typeof window.matchMedia === "function" &&
+    window.matchMedia("(prefers-color-scheme: dark)").matches;
   return prefersDark ? "dark" : "light";
 }
 
@@ -23,7 +31,10 @@ export function useThemeMode() {
     } else {
       root.classList.remove("dark");
     }
-    localStorage.setItem(STORAGE_KEYS.theme, theme);
+    const storage = getSafeLocalStorage();
+    if (storage && typeof storage.setItem === "function") {
+      storage.setItem(STORAGE_KEYS.theme, theme);
+    }
   }, [theme]);
 
   const toggleTheme = () => {

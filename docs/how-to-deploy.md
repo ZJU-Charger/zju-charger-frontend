@@ -34,7 +34,7 @@ Next.js + shadcn 仍保持组件化拆分，部署方式（Node/Vercel/自托管
 
     ```ini
     NEXT_PUBLIC_AMAP_KEY=prod-gaode-key
-    NEXT_PUBLIC_API_BASE=https://charger.philfan.cn
+    NEXT_PUBLIC_API_BASE=https://api.philfan.cn/api
     ```
 
   - 若前后端同域部署，可省略 `NEXT_PUBLIC_API_BASE`，客户端会直接请求 `/api/*`。

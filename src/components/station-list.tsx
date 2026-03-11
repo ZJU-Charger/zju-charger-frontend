@@ -176,6 +176,10 @@ export function StationList({
   const scrollStyle = limitedHeight
     ? { height: `${limitedHeight}px` }
     : undefined;
+  const scrollAreaClassName = cn(
+    "station-list-no-scrollbar w-full min-h-0 min-w-0 max-w-full",
+    limitedHeight ? undefined : "h-full",
+  );
   const skeletonCount = maxVisible ? Math.max(3, Math.min(maxVisible, 6)) : 6;
   const skeletonKeys = useMemo(
     () =>
@@ -190,14 +194,13 @@ export function StationList({
     return (
       <ScrollArea
         type="always"
-        className={cn(
-          "w-full min-h-0 min-w-0 max-w-full",
-          limitedHeight ? undefined : "h-full",
-        )}
+        showScrollbar={false}
+        viewportClassName="station-list-no-scrollbar"
+        className={scrollAreaClassName}
         style={scrollStyle}
       >
         <div
-          className="flex w-full min-w-0 max-w-full flex-col gap-4 overflow-x-hidden pr-4"
+          className="flex w-full min-w-0 max-w-full flex-col gap-4 overflow-x-hidden"
           aria-live="polite"
           aria-busy
         >
@@ -251,19 +254,18 @@ export function StationList({
   return (
     <ScrollArea
       type="always"
-      className={cn(
-        "w-full min-h-0 min-w-0 max-w-full",
-        limitedHeight ? undefined : "h-full",
-      )}
+      showScrollbar={false}
+      viewportClassName="station-list-no-scrollbar"
+      className={scrollAreaClassName}
       style={scrollStyle}
     >
       <div
         ref={contentRef}
-        className="flex w-full min-w-0 max-w-full flex-col gap-4 overflow-x-hidden pr-4"
+        className="flex w-full min-w-0 max-w-full flex-col gap-4 overflow-x-hidden"
       >
         {stationMeta.map(({ station, distance, watched }, index) => {
           const distanceLabel = formatDistance(distance);
-          const entranceDelay = Math.min(index, 10) * 70;
+          const entranceDelay = Math.min(index, 12) * 95;
           const specialStation = isSpecialStation(station);
           const providerBadgeClass = specialStation
             ? "border-slate-200 text-[var(--charger-exclusive)] dark:border-slate-600 dark:text-[var(--charger-exclusive)]"

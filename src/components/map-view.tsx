@@ -93,6 +93,8 @@ const DARK_PALETTE = {
 
 const BATTERY_SWAP_SYMBOL: StationSymbol = "rect";
 const DEFAULT_SYMBOL: StationSymbol = "circle";
+const STATION_BLINK_COUNT = 3;
+const STATION_BLINK_INTERVAL_MS = 180;
 
 function getStationColor(
   station: StationRecord,
@@ -168,6 +170,7 @@ export function MapView({
   const userMarkerElementRef = useRef<HTMLDivElement | null>(null);
   const [mapRenderKey, setMapRenderKey] = useState(0);
   const navSwitchTimerRef = useRef<number | null>(null);
+  const stationBlinkTimeoutsRef = useRef<number[]>([]);
   const palette = useMemo(
     () => (theme === "dark" ? DARK_PALETTE : LIGHT_PALETTE),
     [theme],
@@ -602,6 +605,68 @@ export function MapView({
 
   useEffect(() => {
     if (!chart) return;
+
+    stationBlinkTimeoutsRef.current.forEach((timer) =>
+      window.clearTimeout(timer),
+    );
+    stationBlinkTimeoutsRef.current = [];
+
+    if (
+      !focusStation ||
+      focusStation.longitude === null ||
+      focusStation.latitude === null
+    ) {
+      chart.dispatchAction({ type: "hideTip" });
+      return;
+    }
+
+    const dataIndex = dataPoints.findIndex(
+      (point) => point.station.hashId === focusStation.hashId,
+    );
+    if (dataIndex < 0) return;
+
+    chart.dispatchAction({ type: "showTip", seriesIndex: 0, dataIndex });
+    chart.dispatchAction({ type: "downplay", seriesIndex: 0, dataIndex });
+
+    for (let i = 0; i < STATION_BLINK_COUNT; i += 1) {
+      const onTimer = window.setTimeout(
+        () => {
+          chart.dispatchAction({
+            type: "highlight",
+            seriesIndex: 0,
+            dataIndex,
+          });
+        },
+        i * STATION_BLINK_INTERVAL_MS * 2,
+      );
+      const offTimer = window.setTimeout(
+        () => {
+          chart.dispatchAction({
+            type: "downplay",
+            seriesIndex: 0,
+            dataIndex,
+          });
+        },
+        i * STATION_BLINK_INTERVAL_MS * 2 + STATION_BLINK_INTERVAL_MS,
+      );
+      stationBlinkTimeoutsRef.current.push(onTimer, offTimer);
+    }
+
+    return () => {
+      stationBlinkTimeoutsRef.current.forEach((timer) =>
+        window.clearTimeout(timer),
+      );
+      stationBlinkTimeoutsRef.current = [];
+      chart.dispatchAction({
+        type: "downplay",
+        seriesIndex: 0,
+        dataIndex,
+      });
+    };
+  }, [chart, dataPoints, focusStation]);
+
+  useEffect(() => {
+    if (!chart) return;
     let longPressTimer: number | null = null;
 
     const navTargetFromParams = (params: CallbackDataParams) => {
@@ -722,19 +787,24 @@ export function MapView({
         </Button>
       </div>
       {navTarget && (
-        <div className="absolute top-4 right-4 w-72 rounded-2xl border bg-card p-4 shadow-xl transition duration-200 ease-out">
-          <div className="mb-2 flex items-center justify-between gap-2">
-            <div>
-              <p className="text-sm font-semibold" aria-live="polite">
+        <div className="absolute right-4 top-4 w-[min(22rem,calc(100%-2rem))] rounded-3xl border border-border/70 bg-background/95 p-4 shadow-2xl backdrop-blur-sm transition-all duration-200 ease-out">
+          <div className="mb-3 flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <p
+                className="truncate text-sm font-semibold leading-5"
+                aria-live="polite"
+              >
                 {isSwitchingNav ? switchingNavText : navTitle}
               </p>
               {isSwitchingNav && pendingNavText ? (
-                <p className="text-xs text-emerald-500">{pendingNavText}</p>
+                <p className="text-xs text-muted-foreground">
+                  {pendingNavText}
+                </p>
               ) : null}
             </div>
             <button
               type="button"
-              className="flex h-9 w-9 items-center justify-center rounded-full border border-transparent bg-emerald-50 text-emerald-500 shadow-sm transition hover:bg-emerald-100 hover:text-emerald-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 dark:bg-emerald-400/15 dark:text-emerald-200"
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-border/60 bg-background text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               onClick={() => {
                 cancelNavTransition();
                 setNavTarget(null);
@@ -744,8 +814,10 @@ export function MapView({
               <span className="text-lg leading-none">×</span>
             </button>
           </div>
-          <div className="flex flex-col gap-2 text-sm">
+          <div className="mb-2 border-t border-border/60" />
+          <div className="grid gap-2 text-sm">
             <Button
+              className="h-10 rounded-xl text-sm font-medium"
               onClick={() =>
                 gaodeNavOption &&
                 attemptOpen(gaodeNavOption.primary, gaodeNavOption.fallback)
@@ -755,8 +827,8 @@ export function MapView({
             </Button>
             {systemNavOption ? (
               <Button
-                variant="secondary"
-                className="border border-slate-300/70 bg-white/90 text-slate-900 shadow-sm transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700"
+                variant="outline"
+                className="h-10 rounded-xl text-sm font-medium"
                 onClick={() =>
                   attemptOpen(systemNavOption.primary, systemNavOption.fallback)
                 }

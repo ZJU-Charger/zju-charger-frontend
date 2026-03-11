@@ -8,6 +8,7 @@ import {
   Dialog,
   DialogClose,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -179,6 +180,10 @@ export function HeaderBar({
   const setManualOpen = useUIStore((state) => state.setGuideManualOpen);
   const setDontShowGuide = useUIStore((state) => state.setGuideSuppressed);
   const guideLabel = language === "en" ? "User guide" : "使用说明书";
+  const guideDescription =
+    language === "en"
+      ? "Instructions and notes for using ZJU Charger."
+      : "ZJU Charger 的使用说明与注意事项。";
   const dontShowAriaLabel =
     language === "en" ? "Do not show the guide again" : "不再显示说明书";
   const dontShowText = language === "en" ? "Don't show again" : "不再显示";
@@ -223,10 +228,12 @@ export function HeaderBar({
             className="rounded-lg"
           />
           <div className="flex items-end gap-3">
-            <h1 className="text-2xl font-semibold text-emerald-600 dark:text-emerald-400">
+            <h1 className="font-libre-baskerville text-2xl font-semibold text-emerald-600 dark:text-emerald-400">
               ZJU Charger
             </h1>
-            <span className="text-sm text-muted-foreground">by PhilFan</span>
+            <span className="font-libre-baskerville text-sm text-muted-foreground">
+              by PhilFan
+            </span>
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-3 text-sm">
@@ -269,6 +276,9 @@ export function HeaderBar({
               >
                 <DialogHeader className="flex-shrink-0">
                   <DialogTitle>{guideLabel}</DialogTitle>
+                  <DialogDescription className="sr-only">
+                    {guideDescription}
+                  </DialogDescription>
                 </DialogHeader>
                 <div className="flex-1 overflow-y-auto space-y-3 text-sm text-muted-foreground pr-2 -mr-2">
                   <ol className="space-y-2 list-decimal pl-5">

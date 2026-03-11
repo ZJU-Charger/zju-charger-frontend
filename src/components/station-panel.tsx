@@ -76,17 +76,17 @@ export function StationPanel({
   return (
     <Card
       className={cn(
-        "order-2 flex flex-1 min-h-0 min-w-0 flex-col overflow-hidden rounded-2xl border bg-card p-4 shadow-sm lg:order-1 lg:h-full",
+        "order-2 flex flex-1 min-h-0 flex-col rounded-2xl border bg-card p-4 shadow-sm lg:order-1 lg:h-full",
         className,
       )}
       style={style}
     >
-      <div className="flex flex-col gap-4 border-b pb-5">
+      <div className="flex flex-col gap-4 border-b border-border/80 pb-5 dark:border-white/20">
         <div className="flex items-center justify-between gap-3">
           <h2 className="text-lg font-semibold">{listTitle}</h2>
           <p className="text-xs text-muted-foreground">{watchSummary}</p>
         </div>
-        <div className="flex flex-wrap items-center justify-evenly gap-3">
+        <div className="flex flex-wrap items-center gap-3 justify-between">
           <div className="flex items-center gap-1">
             <Filter
               className="h-4 w-4 text-muted-foreground"
@@ -98,7 +98,7 @@ export function StationPanel({
               onChange={onProviderChange}
             />
           </div>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 justify-end ml-auto">
             <ArrowUpDown
               className="h-4 w-4 text-muted-foreground"
               aria-label={sortLabel}
@@ -115,7 +115,7 @@ export function StationPanel({
       <div className="py-3">
         <NightNotice />
       </div>
-      <div className="relative flex-1 min-h-0 min-w-0 w-full overflow-hidden">
+      <div className="relative flex-1 overflow-hidden min-h-0">
         <StationList
           stations={stations}
           loading={loading}

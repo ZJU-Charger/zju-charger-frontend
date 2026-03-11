@@ -8,22 +8,22 @@ export interface WatchlistState {
   stationHashes: Set<string>;
 }
 
+function createEmptyWatchlistState(): WatchlistState {
+  return {
+    deviceKeys: new Set(),
+    names: new Set(),
+    stationHashes: new Set(),
+  };
+}
+
 function parseWatchlist(): WatchlistState {
   if (typeof window === "undefined" || typeof localStorage === "undefined") {
-    return {
-      deviceKeys: new Set(),
-      names: new Set(),
-      stationHashes: new Set(),
-    };
+    return createEmptyWatchlistState();
   }
   try {
     const raw = localStorage.getItem(STORAGE_KEYS.watchlist);
     if (!raw) {
-      return {
-        deviceKeys: new Set(),
-        names: new Set(),
-        stationHashes: new Set(),
-      };
+      return createEmptyWatchlistState();
     }
     const payload = JSON.parse(raw) as {
       devids?: Array<{ devid: number | string; provider: string }>;
@@ -47,11 +47,7 @@ function parseWatchlist(): WatchlistState {
     };
   } catch (error) {
     console.warn("无法解析本地关注列表", error);
-    return {
-      deviceKeys: new Set(),
-      names: new Set(),
-      stationHashes: new Set(),
-    };
+    return createEmptyWatchlistState();
   }
 }
 
@@ -72,11 +68,20 @@ function persistWatchlist(state: WatchlistState) {
 }
 
 export function useWatchlist() {
-  const [state, setState] = useState<WatchlistState>(() => parseWatchlist());
+  const [state, setState] = useState<WatchlistState>(() =>
+    createEmptyWatchlistState(),
+  );
+  const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
+    setState(parseWatchlist());
+    setHydrated(true);
+  }, []);
+
+  useEffect(() => {
+    if (!hydrated) return;
     persistWatchlist(state);
-  }, [state]);
+  }, [hydrated, state]);
 
   const isWatched = useCallback(
     (station: StationRecord) => {

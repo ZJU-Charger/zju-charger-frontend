@@ -5,7 +5,7 @@ repos:
       - id: eslint
         name: lint
         args: ["--config", "eslint.config.mjs"]
-        files: ^./\.[jt]sx?$
+        files: \.(js|jsx|ts|tsx|mjs)$
         types: [file]
         additional_dependencies:
           - eslint

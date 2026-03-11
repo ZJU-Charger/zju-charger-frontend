@@ -64,8 +64,25 @@ body {
   color: hsl(var(--foreground));
 }
 
+.font-libre-baskerville {
+  font-family: var(--font-libre-baskerville), "Times New Roman", serif;
+}
+
 * {
   border-color: hsl(var(--border));
+}
+
+.station-list-no-scrollbar,
+.station-list-no-scrollbar * {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.station-list-no-scrollbar::-webkit-scrollbar,
+.station-list-no-scrollbar *::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
 }
 
 @layer base {
@@ -184,7 +201,7 @@ body {
 }
 
 .station-card-entrance {
-  animation: station-card-enter 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: station-card-enter 0.56s cubic-bezier(0.2, 0.95, 0.24, 1) both;
   will-change: opacity, transform;
 }
 
@@ -230,7 +247,7 @@ body {
 @keyframes station-card-enter {
   0% {
     opacity: 0;
-    transform: translateY(12px) scale(0.98);
+    transform: translateY(18px) scale(0.965);
   }
   100% {
     opacity: 1;

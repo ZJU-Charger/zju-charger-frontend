@@ -16,11 +16,7 @@ import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/hooks/use-language";
 import type { GeoPoint } from "@/hooks/use-realtime-location";
 import { type AMapMap, type AMapMarker, loadAmap } from "@/lib/amap";
-import {
-  AMAP_DEFAULT_CENTER,
-  CAMPUS_MAP,
-  getCampusDisplayName,
-} from "@/lib/config";
+import { AMAP_DEFAULT_CENTER, CAMPUS_MAP } from "@/lib/config";
 import {
   isBatterySwapProvider,
   isSpecialStation,
@@ -398,12 +394,10 @@ export function MapView({
       zoom = 13;
     }
 
-    const campusLabel = language === "en" ? "Campus" : "校区";
     const providerLabel = language === "en" ? "Provider" : "服务商";
     const freeLabel = language === "en" ? "Free" : "空闲";
     const totalLabel = language === "en" ? "Total" : "总数";
     const faultLabel = language === "en" ? "Fault" : "故障";
-    const unassignedLabel = language === "en" ? "Unassigned" : "未分配";
 
     const tooltipOption: TooltipComponentOption = {
       trigger: "item",
@@ -412,14 +406,9 @@ export function MapView({
         const station = payload.data?.station ?? undefined;
         const name = (params as { name?: string }).name;
         if (!station) return name ?? "";
-        const translatedCampus =
-          station.campusId && station.campusId.length > 0
-            ? getCampusDisplayName(station.campusId, language)
-            : station.campusName || unassignedLabel;
         return `
           <div style="min-width: 180px">
             <strong>${station.name}</strong><br/>
-            ${campusLabel}：${translatedCampus}<br/>
             ${providerLabel}：${station.provider}<br/>
             ${freeLabel}：${station.free} / ${totalLabel}：${station.total}<br/>
             ${faultLabel}：${station.error}

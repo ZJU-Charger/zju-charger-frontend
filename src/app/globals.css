@@ -178,6 +178,73 @@ body {
   }
 }
 
+.station-card-entrance {
+  animation: station-card-enter 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+  will-change: opacity, transform;
+}
+
+.skeleton-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.skeleton-shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(148, 163, 184, 0) 35%,
+    rgba(148, 163, 184, 0.14) 50%,
+    rgba(148, 163, 184, 0) 65%,
+    transparent 100%
+  );
+  transform: translateX(-120%);
+  animation: skeleton-shimmer-sweep 1.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  will-change: transform;
+}
+
+.dark .skeleton-shimmer::after {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(148, 163, 184, 0) 35%,
+    rgba(148, 163, 184, 0.2) 50%,
+    rgba(148, 163, 184, 0) 65%,
+    transparent 100%
+  );
+}
+
+@keyframes skeleton-shimmer-sweep {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes station-card-enter {
+  0% {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .station-card-entrance {
+    animation: none;
+    will-change: auto;
+  }
+
+  .skeleton-shimmer::after {
+    animation: none;
+    transform: translateX(0);
+  }
+}
+
 /* 确保高德地图 logo 不会遮挡 Dialog 等上层组件 */
 .amap-logo,
 .amap-copyright {

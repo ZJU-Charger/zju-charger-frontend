@@ -68,6 +68,8 @@ export function StationList({
       ? "Try switching campuses or refreshing."
       : "尝试切换校区或刷新页面";
   const notFetchedLabel = language === "en" ? "Not fetched" : "未抓取";
+  const freeStatLabel = language === "en" ? "Free" : "空闲";
+  const totalStatLabel = language === "en" ? "Total" : "总计";
   const removeFavoriteLabel =
     language === "en" ? "Remove from favorites" : "取消关注";
   const addFavoriteLabel =
@@ -174,16 +176,47 @@ export function StationList({
   const scrollStyle = limitedHeight
     ? { height: `${limitedHeight}px` }
     : undefined;
+  const skeletonCount = maxVisible ? Math.max(3, Math.min(maxVisible, 6)) : 6;
+  const skeletonKeys = useMemo(
+    () =>
+      Array.from(
+        { length: skeletonCount },
+        (_, number) => `station-skeleton-${number + 1}`,
+      ),
+    [skeletonCount],
+  );
 
   if (loading) {
     return (
-      <div className="py-8 text-center text-muted-foreground">
-        {loadingText}
-      </div>
+      <ScrollArea
+        type="always"
+        className={cn("w-full min-h-0", limitedHeight ? undefined : "h-full")}
+        style={scrollStyle}
+      >
+        <div className="flex flex-col gap-4 pr-4" aria-live="polite" aria-busy>
+          <span className="sr-only">{loadingText}</span>
+          {skeletonKeys.map((skeletonKey) => (
+            <div
+              key={skeletonKey}
+              className={cn(
+                "flex w-full flex-col gap-3 rounded-2xl border p-4 pr-12 shadow-sm",
+                "border-slate-100 bg-white dark:border-slate-700 dark:bg-slate-900",
+              )}
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div className="skeleton-shimmer h-5 w-40 rounded-md bg-slate-200 dark:bg-slate-700" />
+                <div className="skeleton-shimmer h-4 w-8 rounded-full bg-slate-200 dark:bg-slate-700" />
+              </div>
+              <div className="skeleton-shimmer h-4 w-24 rounded-full bg-slate-200 dark:bg-slate-700" />
+              <div className="skeleton-shimmer mt-1 h-2 w-full rounded-full bg-slate-200 dark:bg-slate-700" />
+            </div>
+          ))}
+        </div>
+      </ScrollArea>
     );
   }
 
-  if (error) {
+  if (error && stations.length === 0) {
     return (
       <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-center text-red-700 dark:border-red-900/50 dark:bg-red-900/30 dark:text-red-200">
         <p className="font-medium">{loadErrorTitle}</p>
@@ -215,8 +248,9 @@ export function StationList({
       style={scrollStyle}
     >
       <div ref={contentRef} className="flex flex-col gap-4 pr-4">
-        {stationMeta.map(({ station, distance, watched }) => {
+        {stationMeta.map(({ station, distance, watched }, index) => {
           const distanceLabel = formatDistance(distance);
+          const entranceDelay = Math.min(index, 10) * 70;
           const specialStation = isSpecialStation(station);
           const providerBadgeClass = specialStation
             ? "border-slate-200 text-[var(--charger-exclusive)] dark:border-slate-600 dark:text-[var(--charger-exclusive)]"
@@ -225,11 +259,15 @@ export function StationList({
             ? "h-full rounded-full bg-[var(--charger-exclusive)]"
             : "h-full rounded-full bg-[var(--charger-free)]";
           return (
-            <div key={station.hashId} className="relative">
+            <div
+              key={station.hashId}
+              className="relative station-card-entrance"
+              style={{ animationDelay: `${entranceDelay}ms` }}
+            >
               <button
                 type="button"
                 className={cn(
-                  "group flex w-full cursor-pointer flex-col rounded-2xl border p-4 pr-12 text-left shadow-sm transition",
+                  "group flex w-full cursor-pointer flex-col rounded-2xl border p-4 text-left shadow-sm transition",
                   "bg-white border-slate-100 hover:shadow-md",
                   "dark:bg-slate-900 dark:border-slate-700 dark:shadow-[0_0_0_1px_rgba(15,23,42,0.7)] dark:hover:bg-slate-900/95",
                   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400",
@@ -247,7 +285,7 @@ export function StationList({
                       ) : null}
                     </h3>
                   </div>
-                  <div className="flex gap-2 text-xs text-muted-foreground">
+                  <div className="flex items-center justify-between gap-2 text-xs text-muted-foreground">
                     <Badge variant="outline" className={providerBadgeClass}>
                       <span className="inline-flex items-center gap-1 whitespace-nowrap">
                         {station.provider}
@@ -262,6 +300,22 @@ export function StationList({
                         ) : null}
                       </span>
                     </Badge>
+                    <span className="pointer-events-none shrink-0 opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-visible:opacity-100">
+                      <span className="inline-flex items-center gap-3 whitespace-nowrap text-[11px] font-medium text-slate-500 dark:text-slate-300">
+                        <span className="inline-flex items-baseline gap-1 tracking-[0.06em]">
+                          <span>{freeStatLabel}</span>
+                          <span className="tabular-nums tracking-normal">
+                            {station.free}
+                          </span>
+                        </span>
+                        <span className="inline-flex items-baseline gap-1 tracking-[0.06em]">
+                          <span>{totalStatLabel}</span>
+                          <span className="tabular-nums tracking-normal">
+                            {station.total}
+                          </span>
+                        </span>
+                      </span>
+                    </span>
                   </div>
                 </div>
                 <div className="mt-3 h-2 w-full rounded-full bg-slate-100 dark:bg-slate-800">

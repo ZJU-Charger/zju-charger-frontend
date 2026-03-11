@@ -34,7 +34,7 @@ export function useStations(
   providerId: string,
   campusId: CampusId,
 ): UseStationsResult {
-  const { data, error, isPending, isFetching, refetch } = useQuery({
+  const { data, error, isPending, refetch } = useQuery({
     queryKey: ["stations", providerId || "all"],
     queryFn: async () => {
       const [status, metadata] = await Promise.all([
@@ -88,7 +88,8 @@ export function useStations(
   }, [stations]);
 
   return {
-    loading: isPending || isFetching,
+    // Keep existing data visible during background refreshes.
+    loading: isPending && !data,
     error: error
       ? error instanceof Error
         ? error.message

@@ -240,14 +240,14 @@ export default function HomePage() {
   }, [setTrackingHighlight]);
 
   return (
-    <div className="flex min-h-screen flex-col bg-background lg:h-screen lg:overflow-hidden">
+    <div className="flex h-screen min-h-screen flex-col overflow-hidden bg-background">
       <RateLimitToast
         visible={stationsState.rateLimited}
         message={stationsState.error}
       />
       <main
         ref={mainRef}
-        className="mx-auto flex w-full max-w-7xl flex-1 min-h-0 flex-col gap-4 px-4 py-4 sm:px-6 lg:px-8 lg:py-6 lg:overflow-hidden"
+        className="mx-auto flex w-full max-w-7xl flex-1 min-h-0 flex-col gap-4 overflow-hidden px-4 py-4 sm:px-6 lg:px-8 lg:py-6"
       >
         <div ref={headerSectionRef} className="shrink-0">
           <HeaderBar

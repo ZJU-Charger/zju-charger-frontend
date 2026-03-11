@@ -190,10 +190,17 @@ export function StationList({
     return (
       <ScrollArea
         type="always"
-        className={cn("w-full min-h-0", limitedHeight ? undefined : "h-full")}
+        className={cn(
+          "w-full min-h-0 min-w-0 max-w-full",
+          limitedHeight ? undefined : "h-full",
+        )}
         style={scrollStyle}
       >
-        <div className="flex flex-col gap-4 pr-4" aria-live="polite" aria-busy>
+        <div
+          className="flex w-full min-w-0 max-w-full flex-col gap-4 overflow-x-hidden pr-4"
+          aria-live="polite"
+          aria-busy
+        >
           <span className="sr-only">{loadingText}</span>
           {skeletonKeys.map((skeletonKey) => (
             <div
@@ -244,10 +251,16 @@ export function StationList({
   return (
     <ScrollArea
       type="always"
-      className={cn("w-full min-h-0", limitedHeight ? undefined : "h-full")}
+      className={cn(
+        "w-full min-h-0 min-w-0 max-w-full",
+        limitedHeight ? undefined : "h-full",
+      )}
       style={scrollStyle}
     >
-      <div ref={contentRef} className="flex flex-col gap-4 pr-4">
+      <div
+        ref={contentRef}
+        className="flex w-full min-w-0 max-w-full flex-col gap-4 overflow-x-hidden pr-4"
+      >
         {stationMeta.map(({ station, distance, watched }, index) => {
           const distanceLabel = formatDistance(distance);
           const entranceDelay = Math.min(index, 10) * 70;
@@ -261,42 +274,55 @@ export function StationList({
           return (
             <div
               key={station.hashId}
-              className="relative station-card-entrance"
+              className="relative w-full min-w-0 max-w-full station-card-entrance"
               style={{ animationDelay: `${entranceDelay}ms` }}
             >
               <button
                 type="button"
                 className={cn(
-                  "group flex w-full cursor-pointer flex-col rounded-2xl border p-4 text-left shadow-sm transition",
+                  "group flex w-full min-w-0 max-w-full cursor-pointer flex-col overflow-hidden rounded-2xl border p-4 text-left shadow-sm transition",
                   "bg-white border-slate-100 hover:shadow-md",
                   "dark:bg-slate-900 dark:border-slate-700 dark:shadow-[0_0_0_1px_rgba(15,23,42,0.7)] dark:hover:bg-slate-900/95",
                   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400",
                 )}
                 onClick={() => onSelectStation?.(station)}
               >
-                <div className="flex flex-col gap-2 pr-10">
-                  <div className="flex items-baseline justify-between gap-3">
-                    <h3 className="text-base font-semibold text-card-foreground">
-                      {station.name}
+                <div className="flex min-w-0 flex-col gap-2 pr-10">
+                  <div className="flex w-full min-w-0 items-baseline gap-3">
+                    <h3 className="flex w-full min-w-0 max-w-full items-center gap-2 overflow-hidden text-base font-semibold text-card-foreground">
+                      <span
+                        className="block min-w-0 flex-1 truncate"
+                        title={station.name}
+                      >
+                        {station.name}
+                      </span>
                       {!station.isFetched ? (
-                        <Badge variant="secondary" className="ml-2">
+                        <Badge variant="secondary" className="shrink-0">
                           {notFetchedLabel}
                         </Badge>
                       ) : null}
                     </h3>
                   </div>
-                  <div className="flex items-center justify-between gap-2 text-xs text-muted-foreground">
-                    <Badge variant="outline" className={providerBadgeClass}>
-                      <span className="inline-flex items-center gap-1 whitespace-nowrap">
-                        {station.provider}
+                  <div className="flex min-w-0 items-center justify-between gap-2 text-xs text-muted-foreground">
+                    <Badge
+                      variant="outline"
+                      className={cn(providerBadgeClass, "max-w-full min-w-0")}
+                    >
+                      <span className="inline-flex min-w-0 max-w-full items-center gap-1">
+                        <span
+                          className="block min-w-0 flex-1 truncate whitespace-nowrap"
+                          title={station.provider}
+                        >
+                          {station.provider}
+                        </span>
                         {distanceLabel ? (
-                          <>
+                          <span className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap">
                             <span className="text-slate-300 dark:text-slate-500">
                               /
                             </span>
                             <Navigation className="h-3 w-3" />
                             {distanceLabel}
-                          </>
+                          </span>
                         ) : null}
                       </span>
                     </Badge>

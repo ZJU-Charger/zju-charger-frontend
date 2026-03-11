@@ -15,7 +15,12 @@ import type {
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/hooks/use-language";
 import type { GeoPoint } from "@/hooks/use-realtime-location";
-import { type AMapMap, type AMapMarker, loadAmap } from "@/lib/amap";
+import {
+  type AMapMap,
+  type AMapMarker,
+  type AMapNamespace,
+  loadAmap,
+} from "@/lib/amap";
 import { AMAP_DEFAULT_CENTER, CAMPUS_MAP } from "@/lib/config";
 import {
   isBatterySwapProvider,
@@ -127,6 +132,18 @@ function createUserMarkerElement() {
   return element;
 }
 
+function ensureAmapSetLangCompatibility(amap: AMapNamespace) {
+  const mapPrototype = (
+    amap as unknown as {
+      Map?: { prototype?: { setLang?: (...args: unknown[]) => void } };
+    }
+  ).Map?.prototype;
+
+  if (mapPrototype && typeof mapPrototype.setLang !== "function") {
+    mapPrototype.setLang = () => undefined;
+  }
+}
+
 export function MapView({
   stations,
   campusId,
@@ -160,13 +177,6 @@ export function MapView({
   const stopTrackingLabel =
     language === "en" ? "Stop live location" : "停止实时定位";
   const platform = useMemo(detectPlatform, []);
-
-  useEffect(() => {
-    console.info(
-      "[ECharts][Extension][AMap] CAVEAT: The current map doesn't support `setLang` API! Platform:",
-      platform,
-    );
-  }, [platform]);
 
   const formatCoord = useCallback(
     (station: StationRecord) => `${station.latitude},${station.longitude}`,
@@ -362,7 +372,8 @@ export function MapView({
     let resizeHandler: (() => void) | null = null;
 
     loadAmap(amapKey)
-      .then(() => {
+      .then((amap) => {
+        ensureAmapSetLangCompatibility(amap);
         if (!containerRef.current || disposed) return;
         instance = echarts.init(containerRef.current);
         setChart(instance);
@@ -438,12 +449,6 @@ export function MapView({
           const station = params.data?.station ?? undefined;
           if (station) {
             const color = getStationColor(station, palette);
-            // 临时调试日志
-            if (process.env.NODE_ENV === "development") {
-              console.log(
-                `Station ${station.name}: total=${station.total}, free=${station.free}, color=${color}`,
-              );
-            }
             return color;
           }
           return palette.free;

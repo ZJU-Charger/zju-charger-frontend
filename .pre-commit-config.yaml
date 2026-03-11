@@ -1,0 +1,18 @@
+repos:
+  - repo: https://github.com/pre-commit/mirrors-eslint
+    rev: v9.39.1
+    hooks:
+      - id: eslint
+        name: lint
+        args: ["--config", "eslint.config.mjs"]
+        files: ^./\.[jt]sx?$
+        types: [file]
+        additional_dependencies:
+          - eslint
+          - eslint-config-next
+
+  - repo: https://github.com/rbubley/mirrors-prettier
+    rev: v3.7.4
+    hooks:
+      - id: prettier
+        name: format

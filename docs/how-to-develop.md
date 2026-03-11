@@ -12,7 +12,7 @@
 2. **代码规范**
    - UI 状态集中在 `useUIStore`，远程数据统一用 TanStack Query。
    - 保持 TypeScript 类型完整；Hooks 位于 `src/hooks/`，Store 位于 `src/store/`。
-   - `pnpm lint`（Biome）必须通过后再提交代码。
+   - `pnpm lint`（ESLint）必须通过后再提交代码。
 
 3. **常用目录**
    - `src/app/page.tsx`：页面布局与主要业务逻辑。

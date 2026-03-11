@@ -54,7 +54,12 @@
 }
 
 body {
-  font-family: "Inter", "Noto Sans SC", system-ui, -apple-system, sans-serif;
+  font-family:
+    "Inter",
+    "Noto Sans SC",
+    system-ui,
+    -apple-system,
+    sans-serif;
   background-color: hsl(var(--background));
   color: hsl(var(--foreground));
 }
@@ -245,7 +250,7 @@ body {
   }
 }
 
-/* 确保高德地图 logo 不会遮挡 Dialog 等上层组件 */
+/* 确保高德地图 logo 不会 遮挡 Dialog 等上层组件 */
 .amap-logo,
 .amap-copyright {
   z-index: 1 !important;

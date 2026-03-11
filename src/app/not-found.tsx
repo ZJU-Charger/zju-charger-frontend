@@ -5,7 +5,7 @@ export default function NotFound() {
     <ErrorPage
       code="404"
       title="页面不存在"
-      description="你访问的页面已经被移动或不存在，返回首页继续探索充电站点。"
+      description="你访问的页面已经被移动或不存在，返回首页继续探索充电站点"
     />
   );
 }

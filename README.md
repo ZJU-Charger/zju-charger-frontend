@@ -38,7 +38,7 @@ Open <http://localhost:3000> to view the app. All main components live under `sr
 
 - `NEXT_PUBLIC_AMAP_KEY` (required): Gaode Web JS SDK key. Without it the map will show an error banner.
 - `NEXT_PUBLIC_API_BASE` (optional): API origin for FastAPI backend. Leave empty when frontend and backend share the same domain.
-- `FETCH_INTERVAL` (optional): Frontend auto-refresh interval in seconds. Set it in `.env.*` files and it will be exposed to the browser (as `NEXT_PUBLIC_FETCH_INTERVAL`) 
+- `FETCH_INTERVAL` (optional): Frontend auto-refresh interval in seconds. Set it in `.env.*` files and it will be exposed to the browser (as `NEXT_PUBLIC_FETCH_INTERVAL`)
 - `NEXT_PUBLIC_CLARITY_PROJECT_ID` (optional): Clarity project ID. When set, Clarity will be enabled.
 
 All variables with `NEXT_PUBLIC_` prefix are exposed to the browser and must be set per environment (`.env.local`, `.env.production`, or deployment dashboards).
@@ -50,4 +50,4 @@ All variables with `NEXT_PUBLIC_` prefix are exposed to the browser and must be 
 - Apache ECharts + `echarts-extension-amap`
 - React hooks for watchlist, providers, auto-refresh, realtime geolocation (via `navigator.geolocation.watchPosition`)
 
-PRs and customizations should live in this folder when the frontend is used as a submodule. Remember to run `pnpm lint` (Biome) before committing.
+PRs and customizations should live in this folder when the frontend is used as a submodule. Remember to run `pnpm lint` (ESLint) before committing.

@@ -22,9 +22,16 @@ function readInitialTheme(): ThemeMode {
 }
 
 export function useThemeMode() {
-  const [theme, setTheme] = useState<ThemeMode>(() => readInitialTheme());
+  const [theme, setTheme] = useState<ThemeMode>("light");
+  const [hasResolvedTheme, setHasResolvedTheme] = useState(false);
 
   useEffect(() => {
+    setTheme(readInitialTheme());
+    setHasResolvedTheme(true);
+  }, []);
+
+  useEffect(() => {
+    if (!hasResolvedTheme) return;
     const root = document.documentElement;
     if (theme === "dark") {
       root.classList.add("dark");
@@ -35,7 +42,7 @@ export function useThemeMode() {
     if (storage && typeof storage.setItem === "function") {
       storage.setItem(STORAGE_KEYS.theme, theme);
     }
-  }, [theme]);
+  }, [theme, hasResolvedTheme]);
 
   const toggleTheme = () => {
     setTheme((prev) => (prev === "dark" ? "light" : "dark"));

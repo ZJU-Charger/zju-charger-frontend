@@ -1,13 +1,11 @@
 "use client";
 
-import { Navigation } from "lucide-react";
+import { Navigation, Pin } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useLanguage } from "@/hooks/use-language";
 import type { GeoPoint } from "@/hooks/use-realtime-location";
-import { getCampusDisplayName } from "@/lib/config";
 import { distanceBetween } from "@/lib/geo";
 import { isSpecialStation } from "@/lib/station-style";
 import { cn } from "@/lib/utils";
@@ -37,25 +35,6 @@ function formatDistance(distance: number | null): string | null {
   if (distance < 1000) return `${Math.round(distance)}m`;
   const km = distance / 1000;
   return `${km >= 10 ? Math.round(km) : km.toFixed(1)}km`;
-}
-
-function availabilityClass(station: StationRecord): string {
-  if (isSpecialStation(station)) return "text-[var(--charger-exclusive)]";
-  if (station.error > 0) return "text-[var(--charger-error)]";
-
-  // 如果站点总数大于10，使用绝对数量规则
-  if (station.total > 10) {
-    if (station.free <= 4) return "text-[var(--charger-error)]"; // 0-4个空余桩：红色
-    if (station.free <= 9) return "text-[var(--charger-busy)]"; // 5-9个空余桩：橙色
-    return "text-[var(--charger-free)]"; // 10+个空余桩：绿色
-  }
-
-  // 如果站点总数小于等于10，使用百分比规则
-  const freePercentage =
-    station.total > 0 ? (station.free / station.total) * 100 : 0;
-  if (freePercentage < 30) return "text-[var(--charger-error)]"; // 小于30%：红色
-  if (freePercentage <= 50) return "text-[var(--charger-busy)]"; // 30-50%：橙色
-  return "text-[var(--charger-free)]"; // 大于50%：绿色
 }
 
 function progressWidth(station: StationRecord): string {
@@ -89,11 +68,6 @@ export function StationList({
       ? "Try switching campuses or refreshing."
       : "尝试切换校区或刷新页面";
   const notFetchedLabel = language === "en" ? "Not fetched" : "未抓取";
-  const campusFallback = language === "en" ? "Unassigned campus" : "未分配校区";
-  const freeLabel = language === "en" ? "Free" : "空闲";
-  const usedLabel = language === "en" ? "In use" : "占用";
-  const faultLabel = language === "en" ? "Fault" : "故障";
-  const totalLabel = language === "en" ? "Total" : "总数";
   const removeFavoriteLabel =
     language === "en" ? "Remove from favorites" : "取消关注";
   const addFavoriteLabel =
@@ -246,20 +220,16 @@ export function StationList({
           const specialStation = isSpecialStation(station);
           const providerBadgeClass = specialStation
             ? "border-slate-200 text-[var(--charger-exclusive)] dark:border-slate-600 dark:text-[var(--charger-exclusive)]"
-            : "border-purple-200 text-purple-700 dark:border-purple-700 dark:text-purple-200";
+            : "border-slate-200 text-slate-700 dark:border-slate-600 dark:text-slate-200";
           const progressBarClass = specialStation
             ? "h-full rounded-full bg-[var(--charger-exclusive)]"
             : "h-full rounded-full bg-[var(--charger-free)]";
-          const campusLabel =
-            station.campusId && station.campusId.length > 0
-              ? getCampusDisplayName(station.campusId, language)
-              : station.campusName || campusFallback;
           return (
             <div key={station.hashId} className="relative">
               <button
                 type="button"
                 className={cn(
-                  "group flex w-full cursor-pointer flex-col rounded-2xl border p-4 pr-16 text-left shadow-sm transition",
+                  "group flex w-full cursor-pointer flex-col rounded-2xl border p-4 pr-12 text-left shadow-sm transition",
                   "bg-white border-slate-100 hover:shadow-md",
                   "dark:bg-slate-900 dark:border-slate-700 dark:shadow-[0_0_0_1px_rgba(15,23,42,0.7)] dark:hover:bg-slate-900/95",
                   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400",
@@ -276,38 +246,23 @@ export function StationList({
                         </Badge>
                       ) : null}
                     </h3>
-                    {distanceLabel ? (
-                      <span className="flex items-center gap-1 text-xs font-medium text-emerald-600 dark:text-emerald-400">
-                        <Navigation className="h-3 w-3" />
-                        {distanceLabel}
-                      </span>
-                    ) : null}
                   </div>
-                  <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
-                    <Badge variant="outline">{campusLabel}</Badge>
+                  <div className="flex gap-2 text-xs text-muted-foreground">
                     <Badge variant="outline" className={providerBadgeClass}>
-                      {station.provider}
+                      <span className="inline-flex items-center gap-1 whitespace-nowrap">
+                        {station.provider}
+                        {distanceLabel ? (
+                          <>
+                            <span className="text-slate-300 dark:text-slate-500">
+                              /
+                            </span>
+                            <Navigation className="h-3 w-3" />
+                            {distanceLabel}
+                          </>
+                        ) : null}
+                      </span>
                     </Badge>
                   </div>
-                </div>
-                <div className="mt-4 flex items-center gap-4 overflow-x-auto whitespace-nowrap text-sm">
-                  <span
-                    className={cn(
-                      "shrink-0 font-semibold",
-                      availabilityClass(station),
-                    )}
-                  >
-                    {freeLabel} {station.free}
-                  </span>
-                  <span className="shrink-0 text-muted-foreground">
-                    {usedLabel} {station.used}
-                  </span>
-                  <span className="shrink-0 text-muted-foreground">
-                    {faultLabel} {station.error}
-                  </span>
-                  <span className="shrink-0 text-muted-foreground">
-                    {totalLabel} {station.total}
-                  </span>
                 </div>
                 <div className="mt-3 h-2 w-full rounded-full bg-slate-100 dark:bg-slate-800">
                   <div
@@ -316,15 +271,14 @@ export function StationList({
                   />
                 </div>
               </button>
-              <Button
-                variant="ghost"
-                size="icon"
+              <button
+                type="button"
                 className={cn(
-                  "absolute right-3 top-3 flex h-10 w-10 items-center justify-center rounded-full bg-white text-xl shadow-sm transition focus-visible:ring-2",
-                  "dark:bg-slate-800",
+                  "absolute right-3 top-2.5 inline-flex items-center justify-center p-1 transition duration-200",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70",
                   watched
-                    ? "text-amber-400 hover:text-amber-300 focus-visible:ring-amber-400/60 focus-visible:text-amber-300"
-                    : "text-slate-400 hover:text-amber-300 focus-visible:ring-slate-400/50 focus-visible:text-slate-400",
+                    ? "-rotate-12 text-emerald-500 hover:text-emerald-400"
+                    : "rotate-0 text-slate-400 hover:text-slate-500 dark:text-slate-500 dark:hover:text-slate-400",
                 )}
                 onClick={(event) => {
                   event.stopPropagation();
@@ -333,11 +287,18 @@ export function StationList({
                 aria-label={watched ? removeFavoriteLabel : addFavoriteLabel}
                 aria-pressed={watched}
               >
-                <span aria-hidden>★</span>
+                <Pin
+                  aria-hidden
+                  className={cn(
+                    "h-[18px] w-[18px] transition-transform duration-200",
+                    watched ? "rotate-0 fill-current" : "rotate-12",
+                  )}
+                  strokeWidth={2.2}
+                />
                 <span className="sr-only">
                   {watched ? favoriteStateLabel : favoriteActionLabel}
                 </span>
-              </Button>
+              </button>
             </div>
           );
         })}

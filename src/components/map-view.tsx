@@ -520,17 +520,25 @@ export function MapView({
 
   const getAmap = useCallback((): AMapMap | null => {
     if (!chart) return null;
-    const model = (
-      chart as unknown as {
-        getModel: () => {
-          getComponent: (
-            name: string,
-          ) => { getAMap?: () => AMapMap | null } | null;
-        };
+    try {
+      if (typeof chart.isDisposed === "function" && chart.isDisposed()) {
+        return null;
       }
-    ).getModel();
-    const component = model.getComponent("amap");
-    return component?.getAMap?.() ?? null;
+      const model = (
+        chart as unknown as {
+          getModel?: () => {
+            getComponent?: (
+              name: string,
+            ) => { getAMap?: () => AMapMap | null } | null;
+          } | null;
+        }
+      ).getModel?.();
+      if (!model?.getComponent) return null;
+      const component = model.getComponent("amap");
+      return component?.getAMap?.() ?? null;
+    } catch {
+      return null;
+    }
   }, [chart]);
 
   useEffect(() => {

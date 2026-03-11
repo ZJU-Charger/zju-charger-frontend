@@ -8,10 +8,8 @@ type Size = {
 const defaultSize: Size = { width: 0, height: 0 };
 
 export function useWindowSize() {
-  const [size, setSize] = useState<Size>(() => {
-    if (typeof window === "undefined") return defaultSize;
-    return { width: window.innerWidth, height: window.innerHeight };
-  });
+  // Keep the first client render identical to SSR output to avoid hydration mismatches.
+  const [size, setSize] = useState<Size>(defaultSize);
 
   useEffect(() => {
     function handleResize() {

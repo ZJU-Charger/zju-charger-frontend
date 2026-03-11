@@ -80,12 +80,12 @@ const GUIDE_STEPS: GuideEntry[] = [
     content: {
       zh: (
         <>
-          站点关注：点击<b>星标</b>关注站点，显示并保存在列表顶部。
+          站点关注：点击右上角<b>图钉</b>关注站点，显示并保存在列表顶部。
         </>
       ),
       en: (
         <>
-          Favorites: tap the <b>star</b> to pin a station at the top of the
+          Favorites: tap the <b>pin</b> to keep a station at the top of the
           list.
         </>
       ),
@@ -151,12 +151,17 @@ const GUIDE_NOTES: GuideEntry[] = [
       zh: (
         <>
           隐私声明：本网站不储存任何个人信息，不收集除了流量统计（由第三方平台提供）所需以外的任何信息，请大家放心使用。
-          本站为个人公益开发，仅用于学习交流，使用本网站即表示同意：<b>使用过程中出现的任何问题由使用者自行承担</b>。
+          本站为个人公益开发，仅用于学习交流，使用本网站即表示同意：
+          <b>使用过程中出现的任何问题由使用者自行承担</b>。
         </>
       ),
       en: (
         <>
-            <b>Privacy Notice:</b> This website does not store any personal information. The site includes JavaScript scripts to count and record visitor data and click sources, provided by third-party analytics platforms. This site is a personal, non-profit project for learning only; by using it, you agree to assume any risks yourself.
+          <b>Privacy Notice:</b> This website does not store any personal
+          information. The site includes JavaScript scripts to count and record
+          visitor data and click sources, provided by third-party analytics
+          platforms. This site is a personal, non-profit project for learning
+          only; by using it, you agree to assume any risks yourself.
         </>
       ),
     },

@@ -3,23 +3,9 @@
 import { type ReactNode, useEffect } from "react";
 import { STORAGE_KEYS } from "@/lib/config";
 import { useUIStore } from "@/store/ui.store";
-import { DEFAULT_LANGUAGE, type Language } from "@/types/language";
-
-function readInitialLanguage(): Language {
-  if (typeof window === "undefined") {
-    return DEFAULT_LANGUAGE;
-  }
-  const stored = localStorage.getItem(STORAGE_KEYS.language);
-  return stored === "en" ? "en" : DEFAULT_LANGUAGE;
-}
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const language = useUIStore((state) => state.language);
-  const setLanguage = useUIStore((state) => state.setLanguage);
-
-  useEffect(() => {
-    setLanguage(readInitialLanguage());
-  }, [setLanguage]);
 
   useEffect(() => {
     if (typeof window === "undefined") {

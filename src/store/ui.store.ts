@@ -1,6 +1,7 @@
 "use client";
 
 import { create } from "zustand";
+import { STORAGE_KEYS } from "@/lib/config";
 import { DEFAULT_LANGUAGE, type Language } from "@/types/language";
 import type { CampusId, StationRecord } from "@/types/station";
 
@@ -28,6 +29,14 @@ type UIState = {
 
 const DEFAULT_PROVIDER = "all";
 
+function readInitialLanguage(): Language {
+  if (typeof window === "undefined") {
+    return DEFAULT_LANGUAGE;
+  }
+  const stored = window.localStorage.getItem(STORAGE_KEYS.language);
+  return stored === "en" ? "en" : DEFAULT_LANGUAGE;
+}
+
 export const useUIStore = create<UIState>((set) => ({
   campusId: "" as CampusId,
   providerId: DEFAULT_PROVIDER,
@@ -36,7 +45,7 @@ export const useUIStore = create<UIState>((set) => ({
   trackingHighlight: false,
   guideManualOpen: false,
   guideSuppressed: false,
-  language: DEFAULT_LANGUAGE,
+  language: readInitialLanguage(),
   setCampusId: (id) => set({ campusId: id }),
   toggleCampus: (id) =>
     set((state) => ({

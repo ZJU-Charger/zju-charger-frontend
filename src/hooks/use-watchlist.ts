@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { STORAGE_KEYS } from "@/lib/config";
 import type { StationRecord } from "@/types/station";
 
@@ -68,34 +68,22 @@ function persistWatchlist(state: WatchlistState) {
 }
 
 export function useWatchlist() {
-  const [state, setState] = useState<WatchlistState>(() =>
-    createEmptyWatchlistState(),
-  );
-  const [hydrated, setHydrated] = useState(false);
+  const [state, setState] = useState<WatchlistState>(parseWatchlist);
 
   useEffect(() => {
-    setState(parseWatchlist());
-    setHydrated(true);
-  }, []);
-
-  useEffect(() => {
-    if (!hydrated) return;
     persistWatchlist(state);
-  }, [hydrated, state]);
+  }, [state]);
 
-  const isWatched = useCallback(
-    (station: StationRecord) => {
-      const hasDevice = station.devids.some((id) =>
-        state.deviceKeys.has(`${id}:${station.provider}`),
-      );
-      if (hasDevice) return true;
-      if (station.name && state.names.has(station.name)) return true;
-      return false;
-    },
-    [state],
-  );
+  const isWatched = (station: StationRecord) => {
+    const hasDevice = station.devids.some((id) =>
+      state.deviceKeys.has(`${id}:${station.provider}`),
+    );
+    if (hasDevice) return true;
+    if (station.name && state.names.has(station.name)) return true;
+    return false;
+  };
 
-  const toggleWatch = useCallback((station: StationRecord) => {
+  const toggleWatch = (station: StationRecord) => {
     setState((prev) => {
       const next: WatchlistState = {
         deviceKeys: new Set(prev.deviceKeys),
@@ -130,20 +118,17 @@ export function useWatchlist() {
       }
       return next;
     });
-  }, []);
+  };
 
-  const reload = useCallback(() => {
+  const reload = () => {
     setState(parseWatchlist());
-  }, []);
+  };
 
-  const counts = useMemo(
-    () => ({
-      deviceCount: state.deviceKeys.size,
-      nameCount: state.names.size,
-      stationCount: state.stationHashes.size,
-    }),
-    [state],
-  );
+  const counts = {
+    deviceCount: state.deviceKeys.size,
+    nameCount: state.names.size,
+    stationCount: state.stationHashes.size,
+  };
 
   return { watchlist: state, isWatched, toggleWatch, reload, counts };
 }

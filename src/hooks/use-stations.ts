@@ -1,5 +1,4 @@
 import { useQuery } from "@tanstack/react-query";
-import { useCallback, useMemo } from "react";
 import {
   fetchStationsMetadata,
   fetchStatus,
@@ -57,35 +56,31 @@ export function useStations(
   const stations = data?.stations ?? [];
   const updatedAt = data?.updatedAt;
 
-  const refresh = useCallback(async () => {
+  const refresh = async () => {
     await refetch({ throwOnError: false });
-  }, [refetch]);
+  };
 
-  const campusStations = useMemo(() => {
+  const campusStations = (() => {
     if (!campusId) return stations;
     return stations.filter((station) => station.campusId === campusId);
-  }, [stations, campusId]);
+  })();
 
-  const mapStations = useMemo(() => {
+  const mapStations = (() => {
     if (!campusId) return stations;
     return stations.filter((station) => station.campusId === campusId);
-  }, [stations, campusId]);
+  })();
 
-  const summary = useMemo(() => {
-    return CAMPUS_LIST.map((campus) => {
-      const scoped = stations.filter(
-        (station) => station.campusId === campus.id,
-      );
-      return {
-        campusId: campus.id,
-        campusName: campus.name,
-        total: scoped.length,
-        free: scoped.reduce((sum, station) => sum + station.free, 0),
-        used: scoped.reduce((sum, station) => sum + station.used, 0),
-        error: scoped.reduce((sum, station) => sum + station.error, 0),
-      } satisfies SummaryItem;
-    });
-  }, [stations]);
+  const summary = CAMPUS_LIST.map((campus) => {
+    const scoped = stations.filter((station) => station.campusId === campus.id);
+    return {
+      campusId: campus.id,
+      campusName: campus.name,
+      total: scoped.length,
+      free: scoped.reduce((sum, station) => sum + station.free, 0),
+      used: scoped.reduce((sum, station) => sum + station.used, 0),
+      error: scoped.reduce((sum, station) => sum + station.error, 0),
+    } satisfies SummaryItem;
+  });
 
   return {
     // Keep existing data visible during background refreshes.

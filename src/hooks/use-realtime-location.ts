@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { wgs84ToGcj02 } from "@/lib/geo";
 import { DEFAULT_LANGUAGE, type Language } from "@/types/language";
 
@@ -21,16 +21,16 @@ export function useRealtimeLocation({
   const [watching, setWatching] = useState(false);
   const watchIdRef = useRef<number | null>(null);
 
-  const stop = useCallback(() => {
+  const stop = () => {
     if (watchIdRef.current !== null && navigator.geolocation) {
       navigator.geolocation.clearWatch(watchIdRef.current);
     }
     watchIdRef.current = null;
     setWatching(false);
     setPoint(null);
-  }, []);
+  };
 
-  const start = useCallback(() => {
+  const start = () => {
     if (!navigator.geolocation) {
       onError?.(
         language === "en"
@@ -74,9 +74,15 @@ export function useRealtimeLocation({
       { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 },
     );
     watchIdRef.current = id;
-  }, [language, onError, stop]);
+  };
 
-  useEffect(() => () => stop(), [stop]);
+  useEffect(() => {
+    return () => {
+      if (watchIdRef.current !== null && navigator.geolocation) {
+        navigator.geolocation.clearWatch(watchIdRef.current);
+      }
+    };
+  }, []);
 
   return { point, watching, start, stop };
 }

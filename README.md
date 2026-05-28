@@ -18,6 +18,9 @@ echo "NEXT_PUBLIC_CLARITY_PROJECT_ID=<your-clarity-project-id>" >> .env.local
 pnpm dev
 ```
 
+- [高德 Key 申请入口](https://lbs.amap.com/api/javascript-api-v2/prerequisites)
+- [Clarity 项目 ID 申请入口](https://clarity.microsoft.com/projects)
+
 Open <http://localhost:3000> to view the app. All main components live under `src/components` and `src/hooks`.
 
 ## Build & Deploy
@@ -36,7 +39,7 @@ Open <http://localhost:3000> to view the app. All main components live under `sr
 
 ## Environment Variables
 
-- `NEXT_PUBLIC_AMAP_KEY` (required): Gaode Web JS SDK key. Without it the map will show an error banner.
+- `NEXT_PUBLIC_AMAP_KEY` (required): Gaode Web JS SDK key. Without it the map will show an error banner. Apply here: <https://lbs.amap.com/api/javascript-api-v2/prerequisites> and choose `Web端(JS API)`.
 - `NEXT_PUBLIC_API_BASE` (optional): API origin for FastAPI backend. Leave empty when frontend and backend share the same domain.
 - `FETCH_INTERVAL` (optional): Frontend auto-refresh interval in seconds. Set it in `.env.*` files and it will be exposed to the browser (as `NEXT_PUBLIC_FETCH_INTERVAL`)
 - `NEXT_PUBLIC_CLARITY_PROJECT_ID` (optional): Clarity project ID. When set, Clarity will be enabled.

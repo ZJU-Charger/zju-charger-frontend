@@ -7,15 +7,23 @@ type Size = {
 
 const defaultSize: Size = { width: 0, height: 0 };
 
+function readWindowSize(): Size {
+  if (typeof window === "undefined") {
+    return defaultSize;
+  }
+  return { width: window.innerWidth, height: window.innerHeight };
+}
+
 export function useWindowSize() {
   // Keep the first client render identical to SSR output to avoid hydration mismatches.
   const [size, setSize] = useState<Size>(defaultSize);
 
   useEffect(() => {
+    setSize(readWindowSize());
+
     function handleResize() {
-      setSize({ width: window.innerWidth, height: window.innerHeight });
+      setSize(readWindowSize());
     }
-    handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);

@@ -1,7 +1,7 @@
 "use client";
 
 import * as echarts from "echarts";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useEffectEvent, useRef, useState } from "react";
 import "echarts-extension-amap";
 import type {
   EChartsOption,
@@ -159,8 +159,8 @@ export function MapView({
 }: MapViewProps) {
   const { language } = useLanguage();
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const [chart, setChart] = useState<echarts.ECharts | null>(null);
-  const [amapReady, setAmapReady] = useState<boolean>(false);
+  const chartRef = useRef<echarts.ECharts | null>(null);
+  const [chartReady, setChartReady] = useState(false);
   const amapKey = process.env.NEXT_PUBLIC_AMAP_KEY;
   const [navTarget, setNavTarget] = useState<StationRecord | null>(null);
   const [pendingNavTarget, setPendingNavTarget] =
@@ -168,26 +168,19 @@ export function MapView({
   const [isSwitchingNav, setIsSwitchingNav] = useState(false);
   const userMarkerRef = useRef<AMapMarker | null>(null);
   const userMarkerElementRef = useRef<HTMLDivElement | null>(null);
-  const [mapRenderKey, setMapRenderKey] = useState(0);
   const navSwitchTimerRef = useRef<number | null>(null);
   const stationBlinkTimeoutsRef = useRef<number[]>([]);
-  const palette = useMemo(
-    () => (theme === "dark" ? DARK_PALETTE : LIGHT_PALETTE),
-    [theme],
-  );
+  const palette = theme === "dark" ? DARK_PALETTE : LIGHT_PALETTE;
   const startTrackingLabel =
     language === "en" ? "Enable live location" : "开启实时定位";
   const stopTrackingLabel =
     language === "en" ? "Stop live location" : "停止实时定位";
-  const platform = useMemo(detectPlatform, []);
+  const platform = detectPlatform();
 
-  const formatCoord = useCallback(
-    (station: StationRecord) => `${station.latitude},${station.longitude}`,
-    [],
-  );
+  const formatCoord = (station: StationRecord) =>
+    `${station.latitude},${station.longitude}`;
 
-  const navigationConfig = useCallback(
-    (station: StationRecord, type: "gaode" | "system") => {
+  const navigationConfig = (station: StationRecord, type: "gaode" | "system") => {
       if (
         station.latitude === null ||
         station.longitude === null ||
@@ -250,12 +243,9 @@ export function MapView({
       }
 
       return null;
-    },
-    [platform, formatCoord],
-  );
+    };
 
-  const attemptOpen = useCallback(
-    (primary: string, fallback?: string) => {
+  const attemptOpen = (primary: string, fallback?: string) => {
       if (typeof window === "undefined") {
         if (fallback) {
           globalThis?.open?.(fallback, "_blank");
@@ -307,67 +297,52 @@ export function MapView({
       }, 1200);
 
       window.setTimeout(cleanup, 1500);
-    },
-    [platform],
-  );
+    };
 
-  const cancelNavTransition = useCallback(() => {
+  const cancelNavTransition = () => {
     if (navSwitchTimerRef.current !== null) {
       window.clearTimeout(navSwitchTimerRef.current);
       navSwitchTimerRef.current = null;
     }
     setIsSwitchingNav(false);
     setPendingNavTarget(null);
-  }, []);
+  };
 
-  const requestNavTarget = useCallback(
-    (station: StationRecord) => {
-      cancelNavTransition();
-      if (!navTarget) {
-        setNavTarget(station);
-        return;
-      }
-      if (navTarget.hashId === station.hashId) {
-        setNavTarget(station);
-        return;
-      }
-      setIsSwitchingNav(true);
-      setPendingNavTarget(station);
-      navSwitchTimerRef.current = window.setTimeout(() => {
-        setNavTarget(station);
-        setIsSwitchingNav(false);
-        setPendingNavTarget(null);
-        navSwitchTimerRef.current = null;
-      }, 220);
-    },
-    [cancelNavTransition, navTarget],
-  );
+  const requestNavTarget = useEffectEvent((station: StationRecord) => {
+    cancelNavTransition();
+    if (!navTarget || navTarget.hashId === station.hashId) {
+      setNavTarget(station);
+      return;
+    }
+    setIsSwitchingNav(true);
+    setPendingNavTarget(station);
+    navSwitchTimerRef.current = window.setTimeout(() => {
+      setNavTarget(station);
+      setIsSwitchingNav(false);
+      setPendingNavTarget(null);
+      navSwitchTimerRef.current = null;
+    }, 220);
+  });
 
   useEffect(() => {
     return () => {
       cancelNavTransition();
     };
-  }, [cancelNavTransition]);
+  }, []);
 
-  const dataPoints = useMemo<MapDataPoint[]>(
-    () =>
-      stations
-        .filter(
-          (station) => station.longitude !== null && station.latitude !== null,
-        )
-        .map((station) => ({
-          name: station.name,
-          value: [
-            station.longitude as number,
-            station.latitude as number,
-            station.free,
-            station.total,
-          ],
-          station,
-          symbol: getStationSymbol(station),
-        })),
-    [stations],
-  );
+  const dataPoints: MapDataPoint[] = stations
+    .filter((station) => station.longitude !== null && station.latitude !== null)
+    .map((station) => ({
+      name: station.name,
+      value: [
+        station.longitude as number,
+        station.latitude as number,
+        station.free,
+        station.total,
+      ],
+      station,
+      symbol: getStationSymbol(station),
+    }));
   useEffect(() => {
     if (!amapKey) return;
     let disposed = false;
@@ -379,8 +354,8 @@ export function MapView({
         ensureAmapSetLangCompatibility(amap);
         if (!containerRef.current || disposed) return;
         instance = echarts.init(containerRef.current);
-        setChart(instance);
-        setAmapReady(true);
+        chartRef.current = instance;
+        setChartReady(true);
         resizeHandler = () => instance?.resize();
         window.addEventListener("resize", resizeHandler);
       })
@@ -394,19 +369,19 @@ export function MapView({
         window.removeEventListener("resize", resizeHandler);
       }
       instance?.dispose();
-      setChart(null);
-      setAmapReady(false);
+      if (chartRef.current === instance) {
+        chartRef.current = null;
+      }
+      setChartReady(false);
     };
   }, [amapKey]);
 
   useEffect(() => {
-    if (!chart || !amapReady) return;
+    const chart = chartRef.current;
+    if (!chart || !chartReady) return;
     const campus = campusId ? CAMPUS_MAP[campusId] : null;
     const center = campus?.center ?? AMAP_DEFAULT_CENTER;
-    let zoom = campusId ? 15 : 13;
-    if (campusId === "2") {
-      zoom = 13;
-    }
+    const zoom = campusId === "2" ? 13 : campusId ? 15 : 13;
 
     const providerLabel = language === "en" ? "Provider" : "服务商";
     const freeLabel = language === "en" ? "Free" : "空闲";
@@ -486,8 +461,7 @@ export function MapView({
     };
 
     chart.setOption(option, true);
-    setMapRenderKey((value) => value + 1);
-  }, [chart, dataPoints, campusId, amapReady, theme, palette, language]);
+  }, [chartReady, dataPoints, campusId, theme, palette, language]);
 
   const gaodeNavOption = navTarget
     ? navigationConfig(navTarget, "gaode")
@@ -515,7 +489,8 @@ export function MapView({
   const systemButtonText =
     language === "en" ? "System Map Nav" : "系统地图导航";
 
-  const getAmap = useCallback((): AMapMap | null => {
+  const getAmap = useEffectEvent((): AMapMap | null => {
+    const chart = chartRef.current;
     if (!chart) return null;
     try {
       if (typeof chart.isDisposed === "function" && chart.isDisposed()) {
@@ -536,18 +511,19 @@ export function MapView({
     } catch {
       return null;
     }
-  }, [chart]);
+  });
 
   useEffect(() => {
     return () => {
       const amap = getAmap();
-      if (amap && userMarkerRef.current) {
-        amap.remove(userMarkerRef.current);
+      const marker = userMarkerRef.current;
+      if (amap && marker) {
+        amap.remove(marker);
         userMarkerRef.current = null;
         userMarkerElementRef.current = null;
       }
     };
-  }, [getAmap]);
+  }, [chartReady]);
 
   useEffect(() => {
     const amap = getAmap();
@@ -601,9 +577,10 @@ export function MapView({
 
     amap.setZoom(zoom);
     amap.setCenter([centerLng, centerLat]);
-  }, [focusStation, stations, campusId, getAmap]);
+  }, [focusStation, stations, campusId]);
 
   useEffect(() => {
+    const chart = chartRef.current;
     if (!chart) return;
 
     stationBlinkTimeoutsRef.current.forEach((timer) =>
@@ -663,9 +640,10 @@ export function MapView({
         dataIndex,
       });
     };
-  }, [chart, dataPoints, focusStation]);
+  }, [chartReady, dataPoints, focusStation]);
 
   useEffect(() => {
+    const chart = chartRef.current;
     if (!chart) return;
     let longPressTimer: number | null = null;
 
@@ -709,15 +687,13 @@ export function MapView({
       chart.off("mouseup", cancelLongPress);
       chart.off("globalout", cancelLongPress);
     };
-  }, [chart, requestNavTarget]);
+  }, [chartReady]);
 
   useEffect(() => {
     const amap = getAmap();
     if (!amap) return;
     const MarkerCtor = window.AMap?.Marker;
     if (!MarkerCtor) return;
-    void mapRenderKey;
-
     if (!tracking || !userLocation) {
       if (userMarkerRef.current) {
         amap.remove(userMarkerRef.current);
@@ -754,7 +730,7 @@ export function MapView({
     } else {
       amap.add(userMarkerRef.current);
     }
-  }, [userLocation, tracking, getAmap, mapRenderKey]);
+  }, [userLocation, tracking, chartReady, dataPoints.length]);
 
   if (!amapKey) {
     return (
@@ -769,7 +745,10 @@ export function MapView({
   }
 
   return (
-    <div className="relative h-full w-full min-h-[360px]">
+    <div
+      className="relative h-full w-full min-h-[360px]"
+      data-map-ready={chartReady}
+    >
       <div ref={containerRef} className="absolute inset-0" />
       <div className="absolute bottom-4 right-4">
         <Button
@@ -804,7 +783,7 @@ export function MapView({
             </div>
             <button
               type="button"
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-border/60 bg-background text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="flex size-8 shrink-0 items-center justify-center rounded-full border border-border/60 bg-background text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               onClick={() => {
                 cancelNavTransition();
                 setNavTarget(null);

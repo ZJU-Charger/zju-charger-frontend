@@ -1,7 +1,6 @@
 "use client";
 
 import { Navigation, Pin } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useLanguage } from "@/hooks/use-language";
@@ -78,10 +77,10 @@ export function StationList({
   const favoriteActionLabel =
     language === "en" ? "Mark as favorite" : "标记为关注";
   const errorDetailsLabel = language === "en" ? "Details" : "详情";
-  const contentRef = useRef<HTMLDivElement | null>(null);
-  const [limitedHeight, setLimitedHeight] = useState<number | null>(null);
+  const CARD_HEIGHT_ESTIMATE = 116;
+  const CARD_GAP = 16;
 
-  const stationMeta: StationMeta[] = useMemo(() => {
+  const stationMeta: StationMeta[] = (() => {
     const meta = stations.map((station) => {
       const hasCoords =
         userLocation &&
@@ -124,70 +123,22 @@ export function StationList({
     });
 
     return meta;
-  }, [stations, isWatched, userLocation, sortMode]);
-  const stationCount = stationMeta.length;
-
-  useEffect(() => {
-    if (!maxVisible) {
-      setLimitedHeight(null);
-      return;
-    }
-    if (stationCount === 0) {
-      setLimitedHeight(null);
-      return;
-    }
-    const container = contentRef.current;
-    if (!container) {
-      setLimitedHeight(null);
-      return;
-    }
-
-    const measure = () => {
-      if (!contentRef.current) {
-        setLimitedHeight(null);
-        return;
-      }
-      const children = Array.from(contentRef.current.children).filter(
-        (child): child is HTMLElement => child instanceof HTMLElement,
-      );
-      if (children.length === 0) {
-        setLimitedHeight(null);
-        return;
-      }
-      const slice = children.slice(0, Math.min(maxVisible, children.length));
-      const first = slice[0];
-      const last = slice[slice.length - 1];
-      const height = last.offsetTop + last.offsetHeight - first.offsetTop;
-      setLimitedHeight(Math.ceil(height));
-    };
-
-    measure();
-
-    if (typeof ResizeObserver !== "undefined") {
-      const observer = new ResizeObserver(() => measure());
-      observer.observe(container);
-      return () => observer.disconnect();
-    }
-
-    window.addEventListener("resize", measure);
-    return () => window.removeEventListener("resize", measure);
-  }, [maxVisible, stationCount]);
-
-  const scrollStyle = limitedHeight
-    ? { height: `${limitedHeight}px` }
-    : undefined;
+  })();
+  const visibleCount = maxVisible
+    ? Math.min(maxVisible, stationMeta.length || maxVisible)
+    : null;
+  const limitedHeight = visibleCount
+    ? visibleCount * CARD_HEIGHT_ESTIMATE + (visibleCount - 1) * CARD_GAP
+    : null;
+  const scrollStyle = limitedHeight ? { height: `${limitedHeight}px` } : undefined;
   const scrollAreaClassName = cn(
     "station-list-no-scrollbar w-full min-h-0 min-w-0 max-w-full",
     limitedHeight ? undefined : "h-full",
   );
   const skeletonCount = maxVisible ? Math.max(3, Math.min(maxVisible, 6)) : 6;
-  const skeletonKeys = useMemo(
-    () =>
-      Array.from(
-        { length: skeletonCount },
-        (_, number) => `station-skeleton-${number + 1}`,
-      ),
-    [skeletonCount],
+  const skeletonKeys = Array.from(
+    { length: skeletonCount },
+    (_, number) => `station-skeleton-${number + 1}`,
   );
 
   if (loading) {
@@ -259,10 +210,7 @@ export function StationList({
       className={scrollAreaClassName}
       style={scrollStyle}
     >
-      <div
-        ref={contentRef}
-        className="flex w-full min-w-0 max-w-full flex-col gap-4 overflow-x-hidden"
-      >
+      <div className="flex w-full min-w-0 max-w-full flex-col gap-4 overflow-x-hidden">
         {stationMeta.map(({ station, distance, watched }, index) => {
           const distanceLabel = formatDistance(distance);
           const entranceDelay = Math.min(index, 12) * 95;
@@ -322,7 +270,7 @@ export function StationList({
                             <span className="text-slate-300 dark:text-slate-500">
                               /
                             </span>
-                            <Navigation className="h-3 w-3" />
+                            <Navigation className="size-3" />
                             {distanceLabel}
                           </span>
                         ) : null}
@@ -372,7 +320,7 @@ export function StationList({
                 <Pin
                   aria-hidden
                   className={cn(
-                    "h-[18px] w-[18px] transition-transform duration-200",
+                    "size-[18px] transition-transform duration-200",
                     watched ? "rotate-0 fill-current" : "rotate-12",
                   )}
                   strokeWidth={2.2}

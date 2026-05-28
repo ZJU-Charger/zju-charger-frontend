@@ -2,7 +2,7 @@
 
 import { ArrowUpDown, Filter } from "lucide-react";
 import type { CSSProperties } from "react";
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 import { NightNotice } from "@/components/night-notice";
 import { ProviderSelect } from "@/components/provider-select";
@@ -60,18 +60,18 @@ export function StationPanel({
   const filterLabel = language === "en" ? "Filter" : "筛选";
   const sortLabel = language === "en" ? "Sort" : "排序";
 
-  const handleSortChange = useCallback((mode: SortMode) => {
+  const handleSortChange = (mode: SortMode) => {
     setSortMode(mode);
-  }, []);
+  };
 
-  const handleRequireLocation = useCallback(() => {
+  const handleRequireLocation = () => {
     toast.info(
       language === "en"
         ? "Enable live location to sort by distance."
         : "开启实时定位后才能按距离排序",
     );
     onRequireLocation?.();
-  }, [language, onRequireLocation]);
+  };
 
   return (
     <Card
@@ -86,23 +86,17 @@ export function StationPanel({
           <h2 className="text-lg font-semibold">{listTitle}</h2>
           <p className="text-xs text-muted-foreground">{watchSummary}</p>
         </div>
-        <div className="flex flex-wrap items-center gap-3 justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-1">
-            <Filter
-              className="h-4 w-4 text-muted-foreground"
-              aria-label={filterLabel}
-            />
+            <Filter className="size-4 text-muted-foreground" aria-label={filterLabel} />
             <ProviderSelect
               providerId={providerId}
               providers={providers}
               onChange={onProviderChange}
             />
           </div>
-          <div className="flex items-center gap-1 justify-end ml-auto">
-            <ArrowUpDown
-              className="h-4 w-4 text-muted-foreground"
-              aria-label={sortLabel}
-            />
+          <div className="ml-auto flex items-center justify-end gap-1">
+            <ArrowUpDown className="size-4 text-muted-foreground" aria-label={sortLabel} />
             <SortSelect
               value={sortMode}
               onChange={handleSortChange}
@@ -115,7 +109,7 @@ export function StationPanel({
       <div className="py-3">
         <NightNotice />
       </div>
-      <div className="relative flex-1 overflow-hidden min-h-0">
+      <div className="relative min-h-0 flex-1 overflow-hidden">
         <StationList
           stations={stations}
           loading={loading}

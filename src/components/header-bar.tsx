@@ -250,14 +250,14 @@ export function HeaderBar({
                 language === "en" ? "GitHub repository" : "GitHub 仓库"
               }
             >
-              <Github className="h-4 w-4" />
+              <Github className="size-4" />
             </a>
             <a
               href="mailto:hw.phil.fan@gmail.com"
               className="rounded-full border border-muted-foreground/40 p-2 text-muted-foreground transition hover:bg-muted-foreground/10 dark:border-muted-foreground/40 dark:text-muted-foreground"
               aria-label="Email"
             >
-              <Mail className="h-4 w-4" />
+              <Mail className="size-4" />
             </a>
             <Dialog open={manualOpen} onOpenChange={setManualOpen}>
               <DialogTrigger asChild>
@@ -267,7 +267,7 @@ export function HeaderBar({
                   className="rounded-full border border-muted-foreground/40 p-2 text-muted-foreground transition hover:bg-muted-foreground/10 dark:border-muted-foreground/40 dark:text-muted-foreground"
                   aria-label={guideLabel}
                 >
-                  <BookOpen className="h-4 w-4" />
+                  <BookOpen className="size-4" />
                 </Button>
               </DialogTrigger>
               <DialogContent
@@ -292,7 +292,7 @@ export function HeaderBar({
                     ))}
                   </ul>
                 </div>
-                <DialogFooter className="flex-shrink-0 flex flex-row flex-nowrap w-full items-center justify-between sm:justify-between gap-3 space-x-0 sm:space-x-0 pt-4">
+                <DialogFooter className="flex w-full flex-shrink-0 flex-row flex-nowrap items-center justify-between gap-3 pt-4 sm:justify-between sm:gap-x-0">
                   <div className="flex items-center gap-2 rounded-xl border bg-muted/40 px-3 py-2 text-sm text-muted-foreground">
                     <Switch
                       checked={dontShowGuide}
@@ -327,9 +327,9 @@ export function HeaderBar({
               aria-label={themeAriaLabel}
             >
               {theme === "dark" ? (
-                <Moon className="h-4 w-4" />
+                <Moon className="size-4" />
               ) : (
-                <Sun className="h-4 w-4" />
+                <Sun className="size-4" />
               )}
             </Button>
           </div>

@@ -130,7 +130,9 @@ export function StationList({
   const limitedHeight = visibleCount
     ? visibleCount * CARD_HEIGHT_ESTIMATE + (visibleCount - 1) * CARD_GAP
     : null;
-  const scrollStyle = limitedHeight ? { height: `${limitedHeight}px` } : undefined;
+  const scrollStyle = limitedHeight
+    ? { height: `${limitedHeight}px` }
+    : undefined;
   const scrollAreaClassName = cn(
     "station-list-no-scrollbar w-full min-h-0 min-w-0 max-w-full",
     limitedHeight ? undefined : "h-full",

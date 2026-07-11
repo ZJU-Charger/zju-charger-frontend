@@ -1,18 +1,20 @@
+# TypeScript / Next.js — ESLint (lint) + Biome (format)
+# Note: mirrors-eslint 与 eslint-config-next 的 rushstack patch 冲突，改用本地 pnpm 环境
 repos:
-  - repo: https://github.com/pre-commit/mirrors-eslint
-    rev: v9.39.1
+  - repo: local
     hooks:
       - id: eslint
         name: lint
-        args: ["--config", "eslint.config.mjs"]
+        entry: pnpm exec eslint
+        language: system
         files: \.(js|jsx|ts|tsx|mjs)$
+        exclude: ^(node_modules|\.next|\.open-next|dist|out)/
         types: [file]
-        additional_dependencies:
-          - eslint
-          - eslint-config-next
+        pass_filenames: true
 
-  - repo: https://github.com/rbubley/mirrors-prettier
-    rev: v3.7.4
+  - repo: https://github.com/biomejs/pre-commit
+    rev: v2.2.0
     hooks:
-      - id: prettier
+      - id: biome-check
         name: format
+        additional_dependencies: ["@biomejs/biome@2.2.0"]

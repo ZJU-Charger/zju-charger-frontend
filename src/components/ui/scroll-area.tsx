@@ -5,9 +5,8 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
-interface ScrollAreaProps extends React.ComponentPropsWithoutRef<
-  typeof ScrollAreaPrimitive.Root
-> {
+interface ScrollAreaProps
+  extends React.ComponentPropsWithoutRef<typeof ScrollAreaPrimitive.Root> {
   viewportClassName?: string;
   showScrollbar?: boolean;
 }
@@ -48,7 +47,9 @@ function ScrollBar({
   orientation = "vertical",
   ref,
   ...props
-}: React.ComponentPropsWithRef<typeof ScrollAreaPrimitive.ScrollAreaScrollbar>) {
+}: React.ComponentPropsWithRef<
+  typeof ScrollAreaPrimitive.ScrollAreaScrollbar
+>) {
   return (
     <ScrollAreaPrimitive.ScrollAreaScrollbar
       ref={ref}

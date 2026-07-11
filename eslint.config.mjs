@@ -5,7 +5,14 @@ import nextTypeScript from "eslint-config-next/typescript";
 export default defineConfig([
   ...nextCoreWebVitals,
   ...nextTypeScript,
-  globalIgnores([".next/**", ".open-next/**", "dist/**", "build/**"]),
+  globalIgnores([
+    ".next/**",
+    ".open-next/**",
+    "dist/**",
+    "build/**",
+    "out/**",
+    "node_modules/**",
+  ]),
   {
     rules: {
       "react-hooks/set-state-in-effect": "off",

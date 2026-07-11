@@ -20,7 +20,8 @@
 | 数据请求 | **TanStack React Query v5** + 自建 hooks | `src/hooks/`、`src/lib/api.ts` |
 | 本地状态 | Zustand（UI 等） | `src/store/` |
 | 可视化 | **ECharts 5** + **`echarts-extension-amap`** | 高德底图；Key 环境变量 |
-| 质量 | ESLint + **Biome 2.2** format | `pnpm lint` / `pnpm format` |
+| 质量 | ESLint + **Biome 2.2** format；**pre-commit** | `pnpm lint` / `pnpm format` |
+| CI | `.github/workflows/check.yml` | `pnpm lint` + pre-commit |
 | 部署 | **OpenNext Cloudflare** + Wrangler 4 | `cf:build` / `cf:deploy`；`open-next.config.ts` |
 
 **硬性约定**
@@ -66,17 +67,46 @@ pnpm dev
 pnpm lint
 pnpm build
 pnpm format          # biome
+pre-commit run --all-files
 pnpm cf:build        # OpenNext Cloudflare
 pnpm cf:preview
 pnpm cf:deploy
 ```
 
+### 提交前质量检查（强制）
+
+```bash
+pre-commit install
+pnpm lint
+pre-commit run --all-files
+```
+
+| 检查 | 工具 | 说明 |
+|------|------|------|
+| ESLint | `pnpm lint` / pre-commit local | `eslint.config.mjs` |
+| Format | Biome（`biome.json`，linter 关闭仅 format） | pre-commit `biome-check` |
+| CI | Quality Check on `main` | pnpm@10 + lint + pre-commit |
+
+勿默认 `--no-verify`。ESLint 用项目 `pnpm exec`（避免 mirrors-eslint 与 next 冲突）。
+
 ## 6. 编辑约定
 
 - UI 与业务组件放在 `src/components/`，数据获取与副作用放在 `src/hooks/` 与 `src/lib/api.ts`。
 - 地图样式/站点样式注意 `station-style` 与夜间提示等已有逻辑。
-- 最小改动；提交前 `pnpm lint`。
+- 最小改动；**提交前必须** `pnpm lint` / pre-commit。
 - Next 版本较新，API 以 `node_modules/next` 文档为准。
+
+### 目录文档同步（强制）
+
+**更改本仓库目录/模块时，必须同步更新下列「目录文件」：**
+
+| 变更 | 必更文件 |
+|------|----------|
+| 增删 `src/app` / `components` / `hooks` / `lib` 等 | 本文件 **「目录结构」** |
+| 环境变量新增 | 本文件 **「环境变量」** 表 + `.env` 示例（若有） |
+| 工作区级说明 | 上级 `websites/AGENTS.md`（若适用） |
+
+未更新目录文件即视为改动未完成。
 
 ## 7. Conventional Commits（必须）
 

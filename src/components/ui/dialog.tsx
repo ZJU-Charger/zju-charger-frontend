@@ -31,9 +31,8 @@ function DialogOverlay({
   );
 }
 
-interface DialogContentProps extends React.ComponentPropsWithoutRef<
-  typeof DialogPrimitive.Content
-> {
+interface DialogContentProps
+  extends React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> {
   hideCloseButton?: boolean;
 }
 

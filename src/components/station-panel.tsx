@@ -88,7 +88,10 @@ export function StationPanel({
         </div>
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-1">
-            <Filter className="size-4 text-muted-foreground" aria-label={filterLabel} />
+            <Filter
+              className="size-4 text-muted-foreground"
+              aria-label={filterLabel}
+            />
             <ProviderSelect
               providerId={providerId}
               providers={providers}
@@ -96,7 +99,10 @@ export function StationPanel({
             />
           </div>
           <div className="ml-auto flex items-center justify-end gap-1">
-            <ArrowUpDown className="size-4 text-muted-foreground" aria-label={sortLabel} />
+            <ArrowUpDown
+              className="size-4 text-muted-foreground"
+              aria-label={sortLabel}
+            />
             <SortSelect
               value={sortMode}
               onChange={handleSortChange}

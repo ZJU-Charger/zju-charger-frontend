@@ -10,14 +10,14 @@ function Card({
   ref?: React.Ref<HTMLDivElement>;
 }) {
   return (
-  <div
-    ref={ref}
-    className={cn(
-      "rounded-xl border bg-card text-card-foreground shadow",
-      className,
-    )}
-    {...props}
-  />
+    <div
+      ref={ref}
+      className={cn(
+        "rounded-xl border bg-card text-card-foreground shadow",
+        className,
+      )}
+      {...props}
+    />
   );
 }
 
@@ -29,11 +29,11 @@ function CardHeader({
   ref?: React.Ref<HTMLDivElement>;
 }) {
   return (
-  <div
-    ref={ref}
-    className={cn("flex flex-col gap-1.5 p-6", className)}
-    {...props}
-  />
+    <div
+      ref={ref}
+      className={cn("flex flex-col gap-1.5 p-6", className)}
+      {...props}
+    />
   );
 }
 
@@ -45,11 +45,11 @@ function CardTitle({
   ref?: React.Ref<HTMLDivElement>;
 }) {
   return (
-  <div
-    ref={ref}
-    className={cn("font-semibold leading-none tracking-tight", className)}
-    {...props}
-  />
+    <div
+      ref={ref}
+      className={cn("font-semibold leading-none tracking-tight", className)}
+      {...props}
+    />
   );
 }
 
@@ -61,11 +61,11 @@ function CardDescription({
   ref?: React.Ref<HTMLDivElement>;
 }) {
   return (
-  <div
-    ref={ref}
-    className={cn("text-sm text-muted-foreground", className)}
-    {...props}
-  />
+    <div
+      ref={ref}
+      className={cn("text-sm text-muted-foreground", className)}
+      {...props}
+    />
   );
 }
 
@@ -87,11 +87,11 @@ function CardFooter({
   ref?: React.Ref<HTMLDivElement>;
 }) {
   return (
-  <div
-    ref={ref}
-    className={cn("flex items-center p-6 pt-0", className)}
-    {...props}
-  />
+    <div
+      ref={ref}
+      className={cn("flex items-center p-6 pt-0", className)}
+      {...props}
+    />
   );
 }
 

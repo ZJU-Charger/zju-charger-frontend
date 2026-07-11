@@ -180,124 +180,124 @@ export function MapView({
   const formatCoord = (station: StationRecord) =>
     `${station.latitude},${station.longitude}`;
 
-  const navigationConfig = (station: StationRecord, type: "gaode" | "system") => {
-      if (
-        station.latitude === null ||
-        station.longitude === null ||
-        !station.name
-      ) {
-        return null;
-      }
-      const { latitude, longitude } = station;
-      const coord = formatCoord(station);
-      if (type === "gaode") {
-        if (platform === "ios") {
-          const url = `iosamap://navi?sourceApplication=ZJU+Charger&poiname=${encodeURIComponent(
-            station.name,
-          )}&lat=${latitude}&lon=${longitude}&dev=0&t=0`;
-          return {
-            primary: url,
-            fallback: buildAmapWebUrl(station),
-          };
-        }
-        if (platform === "android") {
-          return {
-            primary: buildAndroidGaodeIntent(station),
-            fallback: `androidamap://navi?sourceApplication=ZJU+Charger&poiname=${encodeURIComponent(
-              station.name,
-            )}&lat=${latitude}&lon=${longitude}&dev=0&t=0`,
-          };
-        }
-        if (platform === "mac") {
-          return {
-            primary: `iosamap://navi?sourceApplication=ZJU+Charger&lat=${latitude}&lon=${longitude}&dev=0&t=0`,
-            fallback: buildAmapWebUrl(station),
-          };
-        }
+  const navigationConfig = (
+    station: StationRecord,
+    type: "gaode" | "system",
+  ) => {
+    if (
+      station.latitude === null ||
+      station.longitude === null ||
+      !station.name
+    ) {
+      return null;
+    }
+    const { latitude, longitude } = station;
+    const coord = formatCoord(station);
+    if (type === "gaode") {
+      if (platform === "ios") {
+        const url = `iosamap://navi?sourceApplication=ZJU+Charger&poiname=${encodeURIComponent(
+          station.name,
+        )}&lat=${latitude}&lon=${longitude}&dev=0&t=0`;
         return {
-          primary: buildAmapWebUrl(station),
+          primary: url,
           fallback: buildAmapWebUrl(station),
         };
       }
-
-      if (type === "system") {
-        if (platform === "ios") {
-          return {
-            primary: `maps://?daddr=${coord}`,
-            fallback: `https://maps.apple.com/?daddr=${coord}`,
-          };
-        }
-        if (platform === "android") {
-          return {
-            primary: `google.navigation:q=${coord}`,
-            fallback: `https://www.google.com/maps/dir/?api=1&destination=${coord}&travelmode=driving`,
-          };
-        }
-        if (platform === "mac") {
-          return {
-            primary: `https://maps.apple.com/?daddr=${coord}`,
-            fallback: `https://maps.apple.com/?daddr=${coord}`,
-          };
-        }
-        return null;
+      if (platform === "android") {
+        return {
+          primary: buildAndroidGaodeIntent(station),
+          fallback: `androidamap://navi?sourceApplication=ZJU+Charger&poiname=${encodeURIComponent(
+            station.name,
+          )}&lat=${latitude}&lon=${longitude}&dev=0&t=0`,
+        };
       }
+      if (platform === "mac") {
+        return {
+          primary: `iosamap://navi?sourceApplication=ZJU+Charger&lat=${latitude}&lon=${longitude}&dev=0&t=0`,
+          fallback: buildAmapWebUrl(station),
+        };
+      }
+      return {
+        primary: buildAmapWebUrl(station),
+        fallback: buildAmapWebUrl(station),
+      };
+    }
 
+    if (type === "system") {
+      if (platform === "ios") {
+        return {
+          primary: `maps://?daddr=${coord}`,
+          fallback: `https://maps.apple.com/?daddr=${coord}`,
+        };
+      }
+      if (platform === "android") {
+        return {
+          primary: `google.navigation:q=${coord}`,
+          fallback: `https://www.google.com/maps/dir/?api=1&destination=${coord}&travelmode=driving`,
+        };
+      }
+      if (platform === "mac") {
+        return {
+          primary: `https://maps.apple.com/?daddr=${coord}`,
+          fallback: `https://maps.apple.com/?daddr=${coord}`,
+        };
+      }
       return null;
-    };
+    }
+
+    return null;
+  };
 
   const attemptOpen = (primary: string, fallback?: string) => {
-      if (typeof window === "undefined") {
-        if (fallback) {
-          globalThis?.open?.(fallback, "_blank");
-        }
-        return;
+    if (typeof window === "undefined") {
+      if (fallback) {
+        globalThis?.open?.(fallback, "_blank");
       }
-      const isHttp = /^https?:\/\//i.test(primary);
-      if (isHttp) {
-        window.open(primary, "_blank");
-        return;
-      }
+      return;
+    }
+    const isHttp = /^https?:\/\//i.test(primary);
+    if (isHttp) {
+      window.open(primary, "_blank");
+      return;
+    }
 
-      let timerId: number | null = null;
-      let navIframe: HTMLIFrameElement | null = null;
-      const handleVisibilityChange = () => {
-        if (document.hidden) {
-          cleanup();
-        }
-      };
-      const cleanup = () => {
-        if (timerId !== null) {
-          window.clearTimeout(timerId);
-          timerId = null;
-        }
-        if (navIframe && document.body.contains(navIframe)) {
-          document.body.removeChild(navIframe);
-        }
-        document.removeEventListener(
-          "visibilitychange",
-          handleVisibilityChange,
-        );
-      };
-
-      if (platform === "ios" || platform === "android" || platform === "mac") {
-        window.location.href = primary;
-      } else {
-        document.addEventListener("visibilitychange", handleVisibilityChange);
-        navIframe = document.createElement("iframe");
-        navIframe.style.display = "none";
-        navIframe.src = primary;
-        document.body.appendChild(navIframe);
-      }
-
-      timerId = window.setTimeout(() => {
+    let timerId: number | null = null;
+    let navIframe: HTMLIFrameElement | null = null;
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
         cleanup();
-        if (fallback) {
-          window.open(fallback, "_blank");
-        }
-      }, 1200);
-
-      window.setTimeout(cleanup, 1500);
+      }
     };
+    const cleanup = () => {
+      if (timerId !== null) {
+        window.clearTimeout(timerId);
+        timerId = null;
+      }
+      if (navIframe && document.body.contains(navIframe)) {
+        document.body.removeChild(navIframe);
+      }
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+
+    if (platform === "ios" || platform === "android" || platform === "mac") {
+      window.location.href = primary;
+    } else {
+      document.addEventListener("visibilitychange", handleVisibilityChange);
+      navIframe = document.createElement("iframe");
+      navIframe.style.display = "none";
+      navIframe.src = primary;
+      document.body.appendChild(navIframe);
+    }
+
+    timerId = window.setTimeout(() => {
+      cleanup();
+      if (fallback) {
+        window.open(fallback, "_blank");
+      }
+    }, 1200);
+
+    window.setTimeout(cleanup, 1500);
+  };
 
   const cancelNavTransition = () => {
     if (navSwitchTimerRef.current !== null) {
@@ -331,7 +331,9 @@ export function MapView({
   }, []);
 
   const dataPoints: MapDataPoint[] = stations
-    .filter((station) => station.longitude !== null && station.latitude !== null)
+    .filter(
+      (station) => station.longitude !== null && station.latitude !== null,
+    )
     .map((station) => ({
       name: station.name,
       value: [

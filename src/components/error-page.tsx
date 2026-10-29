@@ -22,7 +22,7 @@ export function ErrorPage({
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <Card className="w-full max-w-lg rounded-3xl border p-8 text-center shadow-lg">
-        <p className="text-sm font-semibold tracking-widest text-emerald-500">
+        <p className="text-sm font-semibold tracking-widest text-brand">
           ZJU Charger
         </p>
         <h1 className="mt-4 text-5xl font-bold text-card-foreground">{code}</h1>

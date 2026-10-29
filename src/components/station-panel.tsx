@@ -81,7 +81,7 @@ export function StationPanel({
       )}
       style={style}
     >
-      <div className="flex flex-col gap-4 border-b border-border/80 pb-5 dark:border-white/20">
+      <div className="flex flex-col gap-4 border-b border-border/80 pb-5">
         <div className="flex items-center justify-between gap-3">
           <h2 className="text-lg font-semibold">{listTitle}</h2>
           <p className="text-xs text-muted-foreground">{watchSummary}</p>

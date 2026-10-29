@@ -21,7 +21,7 @@ export function RateLimitToast({ visible, message }: RateLimitToastProps) {
     <div className="fixed top-6 right-6 z-50 w-full max-w-sm">
       <Alert
         className={cn(
-          "border-yellow-300 bg-yellow-50 text-yellow-900 dark:border-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-100",
+          "border-warning-border bg-warning-subtle text-warning-subtle-foreground",
         )}
       >
         <AlertTitle>{title}</AlertTitle>

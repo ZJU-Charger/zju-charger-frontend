@@ -1,7 +1,6 @@
 "use client";
 
 import { BookOpen, Github, Mail, Moon, Sun } from "lucide-react";
-import Image from "next/image";
 import { type ReactNode, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -220,15 +219,13 @@ export function HeaderBar({
     <header className="rounded-2xl border bg-card p-4 shadow-sm">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex items-center gap-3">
-          <Image
-            src="/logo.png"
-            alt="ZJU Charger Logo"
-            width={36}
-            height={36}
-            className="rounded-lg"
+          <span
+            role="img"
+            aria-label="ZJU Charger Logo"
+            className="brand-logo size-9 shrink-0 text-brand"
           />
           <div className="flex items-end gap-3">
-            <h1 className="font-libre-baskerville text-2xl font-semibold text-emerald-600 dark:text-emerald-400">
+            <h1 className="font-libre-baskerville text-2xl font-semibold text-brand">
               ZJU Charger
             </h1>
             <span className="font-libre-baskerville text-sm text-muted-foreground">
@@ -245,7 +242,7 @@ export function HeaderBar({
               href="https://github.com/Phil-Fan/ZJU-Charger"
               target="_blank"
               rel="noreferrer"
-              className="rounded-full border border-emerald-500/70 bg-emerald-50 p-2 text-emerald-600 shadow-sm transition hover:bg-emerald-500 hover:text-white dark:bg-emerald-500/10 dark:text-emerald-300"
+              className="rounded-full border border-brand/70 bg-brand-subtle p-2 text-brand shadow-sm transition hover:bg-brand hover:text-brand-foreground"
               aria-label={
                 language === "en" ? "GitHub repository" : "GitHub 仓库"
               }

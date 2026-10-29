@@ -22,11 +22,7 @@ import {
   loadAmap,
 } from "@/lib/amap";
 import { AMAP_DEFAULT_CENTER, CAMPUS_MAP } from "@/lib/config";
-import {
-  isBatterySwapProvider,
-  isSpecialStation,
-  SPECIAL_STATION_COLORS,
-} from "@/lib/station-style";
+import { isBatterySwapProvider, isSpecialStation } from "@/lib/station-style";
 import { cn } from "@/lib/utils";
 import type { CampusId, StationRecord } from "@/types/station";
 
@@ -77,29 +73,56 @@ const buildAndroidGaodeIntent = (station: StationRecord) =>
     station.name,
   )}&lat=${station.latitude}&lon=${station.longitude}&dev=0&style=2#Intent;scheme=androidamap;package=com.autonavi.minimap;category=android.intent.category.DEFAULT;end`;
 
-const LIGHT_PALETTE = {
+interface MapPalette {
+  free: string;
+  busy: string;
+  error: string;
+  special: string;
+  markerBorder: string;
+  markerLabel: string;
+}
+
+const MAP_PALETTE_VARS: Record<keyof MapPalette, string> = {
+  free: "--map-station-free",
+  busy: "--map-station-busy",
+  error: "--map-station-error",
+  special: "--map-station-special",
+  markerBorder: "--map-marker-border",
+  markerLabel: "--map-marker-label",
+};
+
+const MAP_PALETTE_FALLBACK: MapPalette = {
   free: "#22c55e",
   busy: "#f97316",
   error: "#f43f5e",
-  special: SPECIAL_STATION_COLORS.light,
+  special: "#9ca3af",
+  markerBorder: "#ffffff",
+  markerLabel: "#ffffff",
 };
 
-const DARK_PALETTE = {
-  free: "#4ade80",
-  busy: "#fb923c",
-  error: "#fb7185",
-  special: SPECIAL_STATION_COLORS.dark,
-};
+/** Canvas markers cannot use CSS variables directly, so resolve them once. */
+function readMapPalette(): MapPalette {
+  if (typeof document === "undefined") return MAP_PALETTE_FALLBACK;
+  const styles = getComputedStyle(document.documentElement);
+  const read = (name: keyof MapPalette) =>
+    styles.getPropertyValue(MAP_PALETTE_VARS[name]).trim() ||
+    MAP_PALETTE_FALLBACK[name];
+  return {
+    free: read("free"),
+    busy: read("busy"),
+    error: read("error"),
+    special: read("special"),
+    markerBorder: read("markerBorder"),
+    markerLabel: read("markerLabel"),
+  };
+}
 
 const BATTERY_SWAP_SYMBOL: StationSymbol = "rect";
 const DEFAULT_SYMBOL: StationSymbol = "circle";
 const STATION_BLINK_COUNT = 3;
 const STATION_BLINK_INTERVAL_MS = 180;
 
-function getStationColor(
-  station: StationRecord,
-  palette: typeof LIGHT_PALETTE,
-): string {
+function getStationColor(station: StationRecord, palette: MapPalette): string {
   if (isSpecialStation(station)) return palette.special;
 
   // 如果站点总数大于10，使用绝对数量规则
@@ -170,7 +193,13 @@ export function MapView({
   const userMarkerElementRef = useRef<HTMLDivElement | null>(null);
   const navSwitchTimerRef = useRef<number | null>(null);
   const stationBlinkTimeoutsRef = useRef<number[]>([]);
-  const palette = theme === "dark" ? DARK_PALETTE : LIGHT_PALETTE;
+  const [palette, setPalette] = useState<MapPalette>(readMapPalette);
+
+  useEffect(() => {
+    // Wait one frame so the theme class is applied before reading CSS vars.
+    const frame = requestAnimationFrame(() => setPalette(readMapPalette()));
+    return () => cancelAnimationFrame(frame);
+  }, [theme]);
   const startTrackingLabel =
     language === "en" ? "Enable live location" : "开启实时定位";
   const stopTrackingLabel =
@@ -433,7 +462,7 @@ export function MapView({
           }
           return palette.free;
         },
-        borderColor: "#ffffff",
+        borderColor: palette.markerBorder,
         borderWidth: 2,
       },
       label: {
@@ -443,7 +472,7 @@ export function MapView({
           return `${params.data?.station?.free ?? 0}`;
         },
         position: "inside",
-        color: "#ffffff",
+        color: palette.markerLabel,
         fontWeight: "bold",
       },
     };
@@ -760,7 +789,7 @@ export function MapView({
           className={cn(
             "shadow-lg",
             !tracking && trackingHighlight
-              ? "ring-2 ring-emerald-400/70 ring-offset-2 animate-pulse"
+              ? "ring-2 ring-brand/70 ring-offset-2 animate-pulse"
               : undefined,
           )}
         >

@@ -28,18 +28,17 @@ export function SummaryGrid({
             type="button"
             className={cn(
               "flex min-w-[140px] flex-shrink-0 flex-col rounded-2xl border p-3 text-left transition sm:min-w-[180px] sm:p-4",
-              "bg-white text-slate-900 shadow-sm hover:shadow-md",
-              "dark:bg-slate-900 dark:text-slate-100 dark:border-slate-700",
+              "bg-card text-card-foreground shadow-sm hover:bg-accent/40 hover:shadow-md",
               selectedCampusId === item.campusId
-                ? "border-emerald-500 dark:border-emerald-400 shadow-md"
-                : "border-slate-200",
+                ? "border-brand shadow-md"
+                : "border-border",
             )}
             onClick={() => onSelectCampus(item.campusId)}
           >
-            <p className="text-sm font-semibold text-slate-900 dark:text-slate-100 sm:text-base">
+            <p className="text-sm font-semibold text-card-foreground sm:text-base">
               {getCampusDisplayName(item.campusId, language)}
             </p>
-            <p className="mt-2 text-3xl font-bold text-emerald-600 dark:text-emerald-400 sm:mt-3 sm:text-4xl">
+            <p className="mt-2 text-3xl font-bold text-brand sm:mt-3 sm:text-4xl">
               {item.free}
               <span className="ml-1 text-xs font-medium text-muted-foreground sm:ml-2 sm:text-base">
                 {freeLabel}

@@ -12,7 +12,7 @@ export function NightNotice() {
       ? "It's late and charging services may be paused. Get some rest 🌙"
       : "夜深了，充电服务暂停，请注意休息 🌙";
   return (
-    <Card className="bg-blue-50/80 text-blue-800 dark:bg-blue-900/30 dark:text-blue-100">
+    <Card className="border-info-border bg-info-subtle/80 text-info-subtle-foreground">
       <p className="text-sm text-center">{message}</p>
     </Card>
   );

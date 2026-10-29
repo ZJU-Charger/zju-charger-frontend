@@ -163,15 +163,15 @@ export function StationList({
               key={skeletonKey}
               className={cn(
                 "flex w-full flex-col gap-3 rounded-2xl border p-4 pr-12 shadow-sm",
-                "border-slate-100 bg-white dark:border-slate-700 dark:bg-slate-900",
+                "border-border bg-card",
               )}
             >
               <div className="flex items-start justify-between gap-3">
-                <div className="skeleton-shimmer h-5 w-40 rounded-md bg-slate-200 dark:bg-slate-700" />
-                <div className="skeleton-shimmer h-4 w-8 rounded-full bg-slate-200 dark:bg-slate-700" />
+                <div className="skeleton-shimmer h-5 w-40 rounded-md bg-muted" />
+                <div className="skeleton-shimmer h-4 w-8 rounded-full bg-muted" />
               </div>
-              <div className="skeleton-shimmer h-4 w-24 rounded-full bg-slate-200 dark:bg-slate-700" />
-              <div className="skeleton-shimmer mt-1 h-2 w-full rounded-full bg-slate-200 dark:bg-slate-700" />
+              <div className="skeleton-shimmer h-4 w-24 rounded-full bg-muted" />
+              <div className="skeleton-shimmer mt-1 h-2 w-full rounded-full bg-muted" />
             </div>
           ))}
         </div>
@@ -181,7 +181,7 @@ export function StationList({
 
   if (error && stations.length === 0) {
     return (
-      <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-center text-red-700 dark:border-red-900/50 dark:bg-red-900/30 dark:text-red-200">
+      <div className="rounded-xl border border-danger-border bg-danger-subtle p-4 text-center text-danger-subtle-foreground">
         <p className="font-medium">{loadErrorTitle}</p>
         <p className="text-sm">
           {defaultErrorMessage}
@@ -197,7 +197,7 @@ export function StationList({
 
   if (stations.length === 0) {
     return (
-      <div className="rounded-xl border border-yellow-200 bg-yellow-50 p-4 text-center text-yellow-800 dark:border-yellow-800/50 dark:bg-yellow-900/30 dark:text-yellow-100">
+      <div className="rounded-xl border border-warning-border bg-warning-subtle p-4 text-center text-warning-subtle-foreground">
         <p className="font-medium">{emptyTitle}</p>
         <p className="text-sm">{emptyHint}</p>
       </div>
@@ -218,11 +218,11 @@ export function StationList({
           const entranceDelay = Math.min(index, 12) * 95;
           const specialStation = isSpecialStation(station);
           const providerBadgeClass = specialStation
-            ? "border-slate-200 text-[var(--charger-exclusive)] dark:border-slate-600 dark:text-[var(--charger-exclusive)]"
-            : "border-slate-200 text-slate-700 dark:border-slate-600 dark:text-slate-200";
+            ? "border-border text-charger-exclusive"
+            : "border-border text-foreground";
           const progressBarClass = specialStation
-            ? "h-full rounded-full bg-[var(--charger-exclusive)]"
-            : "h-full rounded-full bg-[var(--charger-free)]";
+            ? "h-full rounded-full bg-charger-exclusive"
+            : "h-full rounded-full bg-charger-free";
           return (
             <div
               key={station.hashId}
@@ -233,9 +233,8 @@ export function StationList({
                 type="button"
                 className={cn(
                   "group flex w-full min-w-0 max-w-full cursor-pointer flex-col overflow-hidden rounded-2xl border p-4 text-left shadow-sm transition",
-                  "bg-white border-slate-100 hover:shadow-md",
-                  "dark:bg-slate-900 dark:border-slate-700 dark:shadow-[0_0_0_1px_rgba(15,23,42,0.7)] dark:hover:bg-slate-900/95",
-                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400",
+                  "bg-card border-border hover:bg-accent/40 hover:shadow-md",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand",
                 )}
                 onClick={() => onSelectStation?.(station)}
               >
@@ -269,9 +268,7 @@ export function StationList({
                         </span>
                         {distanceLabel ? (
                           <span className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap">
-                            <span className="text-slate-300 dark:text-slate-500">
-                              /
-                            </span>
+                            <span className="text-muted-foreground/50">/</span>
                             <Navigation className="size-3" />
                             {distanceLabel}
                           </span>
@@ -279,7 +276,7 @@ export function StationList({
                       </span>
                     </Badge>
                     <span className="pointer-events-none shrink-0 opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-visible:opacity-100">
-                      <span className="inline-flex items-center gap-3 whitespace-nowrap text-[11px] font-medium text-slate-500 dark:text-slate-300">
+                      <span className="inline-flex items-center gap-3 whitespace-nowrap text-[11px] font-medium text-muted-foreground">
                         <span className="inline-flex items-baseline gap-1 tracking-[0.06em]">
                           <span>{freeStatLabel}</span>
                           <span className="tabular-nums tracking-normal">
@@ -296,7 +293,7 @@ export function StationList({
                     </span>
                   </div>
                 </div>
-                <div className="mt-3 h-2 w-full rounded-full bg-slate-100 dark:bg-slate-800">
+                <div className="mt-3 h-2 w-full rounded-full bg-muted">
                   <div
                     className={progressBarClass}
                     style={{ width: progressWidth(station) }}
@@ -307,10 +304,10 @@ export function StationList({
                 type="button"
                 className={cn(
                   "absolute right-3 top-2.5 inline-flex items-center justify-center p-1 transition duration-200",
-                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/70",
                   watched
-                    ? "-rotate-12 text-emerald-500 hover:text-emerald-400"
-                    : "rotate-0 text-slate-400 hover:text-slate-500 dark:text-slate-500 dark:hover:text-slate-400",
+                    ? "-rotate-12 text-brand"
+                    : "rotate-0 text-muted-foreground hover:text-foreground",
                 )}
                 onClick={(event) => {
                   event.stopPropagation();
